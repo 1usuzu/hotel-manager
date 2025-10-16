@@ -1,0 +1,11 @@
+{
+  "name": "@vaa/frontend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "echo \"Team sẽ dùng Next.js sau (npx create-next-app).\" && exit 0",
+    "build": "echo \"Add Next build later\"",
+    "start": "echo \"Add Next start later\""
+  },
+  "dependencies": {}
+}
