@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0f0f0f;
+}
+
+/* === Custom Properties === */
+:root {
+  --color-primary: #937D64;
+  --color-primary-dark: #826F59;
+  --color-primary-light: #A48E75;
+  --color-secondary: #1A1A1A;
+  --color-secondary-light: #333333;
+  --color-white: #FFFFFF;
+  --color-gray: #F5F5F5;
+  --transition: all 0.3s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  font-family: 'Inter', sans-serif;
+}
+
+/* === Hero Section === */
+.hero-section {
+  position: relative;
+  height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.hero-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  color: var(--color-white);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  color: var(--color-white);
+}
+
+/* === Buttons === */
+.btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* === Carousel === */
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+}
+
+.carousel-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  padding: 0;
+  margin: 0 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+  background-color: var(--color-white);
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* === Header Fix & Enhancement === */
+.bg-dark-800 {
+  background-color: #1e1b29;
+}
+
+/* Đảm bảo header luôn nổi trên Hero */
+header {
+  position: relative;
+  z-index: 9999 !important;
+  animation: fadeDown 0.8s ease-in-out;
+}
+
+/* Fade-in hiệu ứng header xuất hiện */
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Fix header nằm trên hero */
+header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 99999 !important;
+}
+header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 99999 !important;
+}
+
+body {
+  padding-top: 80px; /* Để không bị header che nội dung */
+  overflow-x: hidden;
+}
+/* ===== HEADER FIX ===== */
+header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 99999 !important;
+}
+
+/* Tạo khoảng cách tránh header che nội dung */
+body {
+  padding-top: 80px;
+  overflow-x: hidden;
+}
+
+/* Đẹp hơn khi hover */
+nav a {
+  position: relative;
+}
+nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background-color: #fbbf24; /* amber-400 */
+  transition: width 0.3s ease-in-out;
+}
+nav a:hover::after {
+  width: 100%;
+}
+input::placeholder {
+  color: #bfbfbf;
+  opacity: 0.8;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0f0f0f;
+}
+input::placeholder {
+  color: #bfbfbf;
+  opacity: 0.8;
+}
+
+input:focus {
+  box-shadow: 0 0 10px #fbbf24;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+body {
+  background-color: #0f0f0f;
+  font-family: 'Inter', sans-serif;
+}
+
+}

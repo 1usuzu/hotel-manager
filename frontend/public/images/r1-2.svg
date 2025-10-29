@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500">
+  <rect width="100%" height="100%" fill="#eef2ff" />
+  <text x="30" y="40" font-size="20" fill="#3730a3" font-family="Inter, Arial">Standard Room</text>
+  <rect x="30" y="70" width="740" height="380" rx="6" fill="#c7d2fe" />
+</svg>
