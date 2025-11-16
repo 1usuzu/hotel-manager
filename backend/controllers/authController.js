@@ -137,3 +137,45 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ error: 'Lỗi server khi reset mật khẩu' });
   }
 };
+
+// Lấy thông tin hồ sơ (profile) của user hiện tại
+exports.getProfile = async (req, res) => {
+  try {
+    // req.user.id được lấy từ authMiddleware
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['user_id', 'username', 'email', 'role', 'created_at'] // Không trả về password
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server khi lấy hồ sơ' });
+  }
+};
+
+// Cập nhật thông tin hồ sơ (ví dụ: username)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username } = req.body; // Chỉ cho phép cập nhật username
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+    }
+
+    user.username = username || user.username;
+
+    await user.save();
+    res.json({ message: 'Cập nhật hồ sơ thành công', user: {
+      user_id: user.user_id,
+      username: user.username,
+      email: user.email
+    } });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server khi cập nhật hồ sơ' });
+  }
+};
