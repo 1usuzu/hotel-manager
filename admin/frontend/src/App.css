@@ -1,0 +1,90 @@
+/* index.css - theme luxury, minimal, no childish icons */
+/* Nếu dùng Tailwind, giữ các directives; tui vẫn viết custom CSS đảm bảo đẹp khi không dùng Tailwind. */
+
+/* Tailwind directives (nếu đã setup tailwind) */
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
+
+/* Theme variables */
+:root{
+  --bg: #0b1220;        /* nền tổng */
+  --panel: #0f1724;     /* panel / card */
+  --muted: #9aa6b2;     /* text phụ */
+  --text: #e6eef8;      /* text chính */
+  --accent: #fbbf24;    /* vàng sang */
+  --accent-2: #6b46ff;  /* tím nhẹ nếu cần */
+  --border: rgba(255,255,255,0.04);
+  --glass: rgba(255,255,255,0.02);
+  --radius: 10px;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #051226 0%, var(--bg) 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Layout */
+.admin-shell{display:flex;height:100vh;gap:24px}
+.sidebar{
+  width:260px;
+  background:var(--panel);
+  padding:20px;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+.brand{
+  font-weight:700;color:var(--accent);font-size:18px;margin-bottom:18px;
+}
+.menu{display:flex;flex-direction:column;gap:8px}
+.menu button{
+  text-align:left;padding:12px;border-radius:8px;background:transparent;border:0;color:var(--muted);
+  cursor:pointer;font-size:14px;
+}
+.menu button.active{color:var(--accent);background:rgba(251,191,36,0.06);font-weight:600}
+.menu button:hover{background:rgba(255,255,255,0.02);color:var(--text)}
+
+/* Right area */
+.content-wrap{display:flex;flex-direction:column;flex:1;height:100vh;overflow:hidden}
+.topbar{height:64px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.topbar .title{font-weight:600;color:var(--accent)}
+.main{
+  padding:24px;
+  height:calc(100vh - 64px);
+  overflow:auto;
+}
+
+/* Cards */
+.card{
+  background:linear-gradient(180deg,var(--glass), rgba(255,255,255,0.01));
+  border:1px solid var(--border);
+  padding:16px;border-radius:var(--radius);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+}
+
+/* Table style - enterprise */
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table thead tr th{padding:12px 10px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
+.table tbody tr td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text)}
+.table tbody tr:hover td{background:rgba(255,255,255,0.01)}
+
+/* Buttons minimal */
+.btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+.btn-accept{background:var(--accent);color:#081226}
+.btn-reject{background:#ef4444;color:#fff}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
+
+/* Form */
+.input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text)}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{width:640px;background:var(--panel);padding:20px;border-radius:12px;border:1px solid var(--border)}
+.label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.small{font-size:13px;color:var(--muted)}
