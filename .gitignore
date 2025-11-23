@@ -9,10 +9,11 @@ package-lock.json
 
 # Build
 dist/
-.next/
 out/
 
 # OS/Editor
 .DS_Store
 Thumbs.db
+
+# VSCode
 .vscode/*.log

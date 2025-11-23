@@ -1,0 +1,390 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+
+import Header from '@/layouts/Header'
+import Footer from '@/layouts/Footer'
+import { useAuth } from '@/features/auth/AuthProvider'
+import { getRoomById } from '@/api/roomApi'
+import { createBooking } from '@/api/bookingApi'
+
+export default function BookingPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { user } = useAuth()          // 👈 lấy user từ Auth
+
+  const searchParams = new URLSearchParams(location.search)
+  const roomIdFromQuery = searchParams.get('room')
+  const amountFromQuery = searchParams.get('amount')
+
+  const [room, setRoom] = useState(null)
+  const [roomLoading, setRoomLoading] = useState(false)
+  const [roomError, setRoomError] = useState('')
+
+  const [checkIn, setCheckIn] = useState(searchParams.get('checkIn') || '')
+  const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '')
+  const [guests, setGuests] = useState(searchParams.get('capacity') || '1')
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [note, setNote] = useState('')
+
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    document.title = 'Đặt phòng | New World Saigon Hotel'
+  }, [])
+
+  // 👉 autofill từ user khi có
+  useEffect(() => {
+    if (!user) return
+    setFullName((prev) => prev || user.username || '')
+    setEmail((prev) => prev || user.email || '')
+    setPhone((prev) => prev || user.phone || '')
+  }, [user])
+
+  useEffect(() => {
+    if (!roomIdFromQuery) return
+    const fetchRoom = async () => {
+      setRoomLoading(true)
+      setRoomError('')
+      try {
+        const data = await getRoomById(roomIdFromQuery)
+        setRoom(data)
+      } catch (err) {
+        console.error(err)
+        setRoomError(
+          err?.response?.data?.error ||
+            err?.response?.data?.message ||
+            'Không tải được thông tin phòng.'
+        )
+      } finally {
+        setRoomLoading(false)
+      }
+    }
+    fetchRoom()
+  }, [roomIdFromQuery])
+
+  const nights = useMemo(() => {
+    if (!checkIn || !checkOut) return 0
+    const ci = new Date(checkIn)
+    const co = new Date(checkOut)
+    const diff = co.getTime() - ci.getTime()
+    return diff > 0 ? diff / (1000 * 60 * 60 * 24) : 0
+  }, [checkIn, checkOut])
+
+  const estimatedTotal = useMemo(() => {
+    if (!room || nights <= 0) return 0
+    return nights * (room.price || 0)
+  }, [room, nights])
+
+  const formatCurrency = (num) => {
+    if (!num || Number.isNaN(Number(num))) return '0₫'
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(Number(num))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setMessage('')
+
+    if (!roomIdFromQuery) {
+      setError('Thiếu thông tin phòng.')
+      return
+    }
+    if (!checkIn || !checkOut) {
+      setError('Vui lòng chọn ngày nhận phòng và trả phòng.')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const payload = {
+        room_id: Number(roomIdFromQuery),
+        check_in: checkIn,
+        check_out: checkOut,
+        guests: Number(guests),
+        full_name: fullName,
+        email,
+        phone,
+        note,
+      }
+
+      const res = await createBooking(payload)
+      const booking = res.booking || res.data?.booking || res
+
+      setMessage('Tạo đơn đặt phòng thành công, chuyển sang thanh toán...')
+
+      navigate(
+        `/payment?bookingId=${booking.booking_id}&amount=${
+          res.totalAmount || amountFromQuery || estimatedTotal
+        }`
+      )
+    } catch (err) {
+      console.error(err)
+      setError(
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          'Không thể tạo đơn đặt phòng. Vui lòng thử lại.'
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen app-root">
+      <Header />
+
+      <main className="pt-28 pb-16 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          {/* header nhỏ */}
+          <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400 mb-1">
+                Bước 2 / 3
+              </p>
+              <h1 className="text-2xl md:text-3xl font-semibold text-slate-900">
+                Xác nhận đặt phòng
+              </h1>
+            </div>
+            <p className="text-xs md:text-sm text-slate-500">
+              Kiểm tra lại thông tin trước khi tiếp tục tới bước thanh toán.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_18px_40px_rgba(15,23,42,0.08)] px-4 py-5 md:px-8 md:py-7">
+            <div className="grid md:grid-cols-[1.7fr_1.3fr] gap-10 items-start">
+              {/* Form bên trái */}
+              <section>
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">
+                  Thông tin khách hàng
+                </h2>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Họ và tên
+                      </label>
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        placeholder="Nguyễn Văn A"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Số điện thoại
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        placeholder="09xxxxxxxx"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Số khách
+                      </label>
+                      <select
+                        value={guests}
+                        onChange={(e) => setGuests(e.target.value)}
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                      >
+                        <option value="1">1 khách</option>
+                        <option value="2">2 khách</option>
+                        <option value="3">3 khách</option>
+                        <option value="4">4 khách</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Ngày nhận phòng
+                      </label>
+                      <input
+                        type="date"
+                        value={checkIn}
+                        onChange={(e) => setCheckIn(e.target.value)}
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Ngày trả phòng
+                      </label>
+                      <input
+                        type="date"
+                        value={checkOut}
+                        onChange={(e) => setCheckOut(e.target.value)}
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Ghi chú cho khách sạn (tuỳ chọn)
+                    </label>
+                    <textarea
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      rows={3}
+                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                      placeholder="Ví dụ: check-in muộn, yêu cầu giường phụ..."
+                    />
+                  </div>
+
+                  {error && (
+                    <p className="text-sm text-red-600">{error}</p>
+                  )}
+                  {message && (
+                    <p className="text-sm text-emerald-600">{message}</p>
+                  )}
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full md:w-auto px-6 py-2.5 rounded-md bg-amber-500 hover:bg-amber-400 text-sm font-semibold text-black transition disabled:opacity-60"
+                    >
+                      {submitting ? 'Đang tạo đơn...' : 'Tiếp tục tới thanh toán'}
+                    </button>
+                  </div>
+                </form>
+              </section>
+
+              {/* Tóm tắt bên phải */}
+              <aside className="space-y-4">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+                  <h2 className="text-lg font-semibold text-slate-900 mb-3">
+                    Tóm tắt đặt phòng
+                  </h2>
+
+                  {roomLoading ? (
+                    <p className="text-sm text-slate-500">
+                      Đang tải thông tin phòng...
+                    </p>
+                  ) : roomError ? (
+                    <p className="text-sm text-red-600">{roomError}</p>
+                  ) : !room ? (
+                    <p className="text-sm text-slate-500">
+                      Không tìm thấy thông tin phòng.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="flex gap-3 mb-3">
+                        {room.image_url && (
+                          <div className="w-20 h-20 rounded-md overflow-hidden bg-slate-200">
+                            <img
+                              src={room.image_url}
+                              alt={room.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm text-slate-900">
+                            {room.name}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            Số phòng: {room.room_number || 'N/A'}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            Loại: {room.type || 'Standard'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-slate-200 my-3" />
+
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">
+                            Ngày nhận phòng
+                          </span>
+                          <span>{checkIn || '-'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">
+                            Ngày trả phòng
+                          </span>
+                          <span>{checkOut || '-'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Số đêm</span>
+                          <span>{nights || '-'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Giá / đêm</span>
+                          <span>
+                            {room.price
+                              ? formatCurrency(room.price)
+                              : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between font-semibold pt-2">
+                          <span>Tạm tính</span>
+                          <span className="text-amber-600">
+                            {formatCurrency(estimatedTotal)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="mt-3 text-xs text-slate-500">
+                        Số tiền cuối cùng sẽ được tính chính xác ở bước thanh
+                        toán dựa trên giá phòng và số đêm thực tế.
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {amountFromQuery && (
+                  <div className="rounded-xl bg-slate-100 px-4 py-3 text-xs text-slate-600">
+                    <p>
+                      Số tiền nhận từ trang trước:{' '}
+                      <span className="font-semibold">
+                        {formatCurrency(amountFromQuery)}
+                      </span>
+                    </p>
+                    <p>
+                      Backend vẫn sẽ tính lại để đảm bảo chính xác.
+                    </p>
+                  </div>
+                )}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  )
+}

@@ -1,0 +1,136 @@
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
+import Header from '@/layouts/Header'
+import Footer from '@/layouts/Footer'
+import { getRoomDetails } from '@/api/roomApi'
+
+export default function RoomDetailPage() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  const [room, setRoom] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true })
+  }, [])
+
+  useEffect(() => {
+    async function fetchRoom() {
+      try {
+        const data = await getRoomDetails(id)
+        setRoom(data)
+      } catch (e) {
+        console.error(e)
+        setError('Không tìm thấy phòng')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRoom()
+  }, [id])
+
+  const handleBook = () => {
+    if (!room) return
+    navigate(`/booking?room=${room.room_id}&amount=${room.price}`)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050816] text-white flex items-center justify-center">
+        <p>Đang tải dữ liệu phòng...</p>
+      </div>
+    )
+  }
+
+  if (error || !room) {
+    return (
+      <div className="min-h-screen bg-[#050816] text-white flex items-center justify-center">
+        <p>{error || 'Không tìm thấy phòng'}</p>
+      </div>
+    )
+  }
+
+  // nếu sau này bạn lưu ảnh vào room.image
+  const roomImg =
+    room.image && room.image.startsWith('http')
+      ? room.image
+      : room.image
+      ? `http://localhost:4000${room.image}`
+      : null
+
+  return (
+    <div className="min-h-screen bg-[#050816] text-white">
+      <Header />
+      <main className="pt-24 pb-16 px-4 max-w-6xl mx-auto">
+        <section className="grid md:grid-cols-2 gap-10 items-start">
+          {/* Cột ảnh */}
+          <div data-aos="fade-right" className="space-y-4">
+            <div className="overflow-hidden rounded-3xl shadow-[0_0_40px_rgba(251,191,36,0.25)] w-full h-[320px] md:h-[380px] bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+              {roomImg ? (
+                <img
+                  src={roomImg}
+                  alt={`Phòng ${room.room_number}`}
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                />
+              ) : (
+                <div className="text-center px-6">
+                  <p className="text-sm text-gray-300">
+                    Chưa có ảnh phòng. Ảnh sẽ được cập nhật sau.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Cột thông tin */}
+          <div data-aos="fade-left" className="space-y-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-amber-400">
+              Phòng {room.room_number || room.room_id}
+            </h1>
+
+            <p className="text-gray-300">
+              Loại phòng: {room.type || 'Chưa cập nhật'}
+            </p>
+            <p className="text-gray-300">
+              Sức chứa: {room.capacity || '?'} người
+            </p>
+            <p className="text-gray-300">
+              Giá: {room.price?.toLocaleString('vi-VN') || 'N/A'} đ / đêm
+            </p>
+            <p className="text-gray-300">
+              Trạng thái:{' '}
+              <span
+                className={
+                  room.status === 'available'
+                    ? 'text-green-400'
+                    : 'text-red-400'
+                }
+              >
+                {room.status === 'available' ? 'Còn phòng' : 'Không khả dụng'}
+              </span>
+            </p>
+
+            <p className="mt-4 text-gray-200 leading-relaxed">
+              {room.description || 'Chưa có mô tả cho phòng này.'}
+            </p>
+
+            {room.status === 'available' && (
+              <button
+                onClick={handleBook}
+                className="mt-6 px-10 py-3 bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-semibold rounded-full shadow-[0_0_25px_rgba(251,191,36,0.6)] hover:shadow-[0_0_35px_rgba(251,191,36,0.9)] transition-all duration-300"
+              >
+                Đặt phòng ngay
+              </button>
+            )}
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  )
+}

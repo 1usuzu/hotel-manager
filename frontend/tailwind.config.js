@@ -1,9 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/features/**/*.{js,ts,jsx,tsx,mdx}',
+    "./index.html",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
@@ -14,48 +13,41 @@ module.exports = {
           light: '#D4B68D'
         },
         secondary: {
-          DEFAULT: '#1A1A1A',
-          dark: '#000000',
-          light: '#333333'
-        }
-      },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        playfair: ['Playfair Display', 'serif']
-      },
-      container: {
-        center: true,
-        padding: '1rem',
-        screens: {
-          sm: '640px',
-          md: '768px',
-          lg: '1024px',
-          xl: '1280px'
-        }
-      }
-    }
-  },
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
-      },
-      colors: {
-        'dark': {
-          500: '#2d2d2d',
-          600: '#242424',
-          700: '#1f1f1f',
-          800: '#1a1a1a',
+          50: '#F9FAFB',
+          100: '#F3F4F6',
+          200: '#E5E7EB',
+          300: '#D1D5DB',
+          400: '#9CA3AF',
+          500: '#6B7280',
+          600: '#4B5563',
+          700: '#374151',
+          800: '#1F2933',
+          900: '#111827',
+        },
+        background: {
+          DEFAULT: '#0b0b10',
+          soft: '#111118',
+          card: '#161623',
+        },
+        neutral: {
+          50: '#f9fafb',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
+          600: '#52525b',
+          700: '#3f3f46',
+          800: '#27272a',
           900: '#171717',
         },
-        'brand': {
+        brand: {
           500: '#e2b555',
           600: '#d4af37',
         }
       },
       boxShadow: {
-        'luxury': '0 4px 30px rgba(212, 175, 55, 0.1)',
+        luxury: '0 4px 30px rgba(212, 175, 55, 0.1)',
       },
     },
   },
