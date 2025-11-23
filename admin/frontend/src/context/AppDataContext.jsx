@@ -1,14 +1,6 @@
 // src/context/AppDataContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 
-/*
-  AppDataContext
-  - Quản lý data rooms, bookings, users
-  - Khi approve booking -> cập nhật room.status = "occupied"
-  - Khi reject booking -> room.status = "available"
-  - Hàm getRevenue(fromDate, toDate) trả về tổng doanh thu và chi tiết bookings trong khoảng
-*/
-
 const AppDataContext = createContext();
 export const useAppData = () => useContext(AppDataContext);
 
@@ -19,6 +11,7 @@ const defaultRooms = [
   { id: 3, name: "VIP Suite", price: 2300000, status: "available" },
 ];
 
+// Demo bookings
 const defaultBookings = [
   {
     id: 101,
@@ -40,9 +33,9 @@ const defaultBookings = [
   },
 ];
 
+// ⚠️ Không phân quyền → chỉ 1 admin duy nhất
 const defaultUsers = [
-  { id: 1, username: "admin", displayName: "Quản trị viên", role: "admin", active: true },
-  { id: 2, username: "staff", displayName: "Nhân viên", role: "staff", active: true },
+  { id: 1, username: "admin", displayName: "Quản trị viên", active: true },
 ];
 
 export function AppDataProvider({ children }) {
@@ -56,58 +49,59 @@ export function AppDataProvider({ children }) {
     setUsers(defaultUsers);
   }, []);
 
-  // update room by id
+  // Cập nhật 1 phòng theo ID
   function updateRoom(id, newData) {
     setRooms((old) => old.map((r) => (r.id === id ? { ...r, ...newData } : r)));
   }
 
-  // change user role
-  function changeUserRole(userId, newRole) {
-    setUsers((old) => old.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
-  }
-
-  // lock/unlock user
+  // Khóa/Mở user (vẫn giữ lại vì ông chưa bảo bỏ)
   function toggleUserActive(userId) {
-    setUsers((old) => old.map((u) => (u.id === userId ? { ...u, active: !u.active } : u)));
+    setUsers((old) =>
+      old.map((u) => (u.id === userId ? { ...u, active: !u.active } : u))
+    );
   }
 
-  // approve booking -> set booking status and set room occupied
+  // Approve booking
   function approveBooking(id) {
-    setBookings((old) => old.map((b) => (b.id === id ? { ...b, status: "approved" } : b)));
+    setBookings((old) =>
+      old.map((b) => (b.id === id ? { ...b, status: "approved" } : b))
+    );
+
     const b = bookings.find((x) => x.id === id);
     if (b) updateRoom(b.roomId, { status: "occupied" });
   }
 
-  // reject booking -> set booking status and free room
+  // Reject booking
   function rejectBooking(id) {
-    setBookings((old) => old.map((b) => (b.id === id ? { ...b, status: "rejected" } : b)));
+    setBookings((old) =>
+      old.map((b) => (b.id === id ? { ...b, status: "rejected" } : b))
+    );
+
     const b = bookings.find((x) => x.id === id);
     if (b) updateRoom(b.roomId, { status: "available" });
   }
 
-  // create booking (demo)
-  function createBooking(payload) {
+  // Tạo booking
+  function createBooking(data) {
     const id = Math.max(0, ...bookings.map((b) => b.id)) + 1;
-    const newB = { id, ...payload, status: "pending" };
-    setBookings((old) => [newB, ...old]);
-    return newB;
+    const newBooking = { id, ...data, status: "pending" };
+    setBookings((old) => [newBooking, ...old]);
+    return newBooking;
   }
 
-  // get revenue and filtered bookings between from/to (strings 'YYYY-MM-DD')
+  // Thống kê doanh thu
   function getRevenue(from, to) {
-    // convert to Date
     const f = from ? new Date(from) : null;
     const t = to ? new Date(to) : null;
 
     const filtered = bookings.filter((b) => {
-      // consider booking.checkIn as date
       const ci = new Date(b.checkIn);
       if (f && ci < f) return false;
       if (t && ci > t) return false;
-      return b.status === "approved"; // only approved counted
+      return b.status === "approved";
     });
 
-    const total = filtered.reduce((s, b) => s + (b.total || 0), 0);
+    const total = filtered.reduce((sum, b) => sum + (b.total || 0), 0);
     return { total, filtered };
   }
 
@@ -121,7 +115,6 @@ export function AppDataProvider({ children }) {
         approveBooking,
         rejectBooking,
         createBooking,
-        changeUserRole,
         toggleUserActive,
         getRevenue,
       }}

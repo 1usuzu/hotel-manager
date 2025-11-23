@@ -6,16 +6,17 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handle(e) {
+  const handle = (e) => {
     e.preventDefault();
     setErr("");
     setLoading(true);
 
-    const u = e.target.username.value.trim();
-    const p = e.target.password.value.trim();
+    const username = e.target.username.value.trim();
+    const password = e.target.password.value.trim();
 
     setTimeout(() => {
-      const res = login(u, p);
+      // login trả về { ok: true/false, message: "" }
+      const res = login(username, password);
       setLoading(false);
 
       if (!res.ok) {
@@ -23,9 +24,10 @@ export default function Login() {
         return;
       }
 
-      window.location.href = "/"; // chuyển sang admin ngay
+      // No role check → vào admin luôn
+      window.location.href = "/";
     }, 500);
-  }
+  };
 
   return (
     <div className="login-container">
@@ -36,7 +38,7 @@ export default function Login() {
 
         <form onSubmit={handle} style={{ marginTop: 20 }}>
 
-          {/* USERNAME FIELD */}
+          {/* USERNAME */}
           <div className="v3-field">
             <input
               name="username"
@@ -47,7 +49,7 @@ export default function Login() {
             <label className="v3-label">Tài khoản</label>
           </div>
 
-          {/* PASSWORD FIELD */}
+          {/* PASSWORD */}
           <div className="v3-field" style={{ marginTop: 18 }}>
             <input
               name="password"
