@@ -1,0 +1,167 @@
+
+
+Tên hệ thống: Hotel Manager – New World Saigon Hotel
+
+Thông tin khách sạn:
+Tên khách sạn: New World Saigon Hotel
+Địa chỉ: 18A, Cộng Hòa, Quận Tân Bình, Thành phố Hồ Chí Minh, Việt Nam
+Hotline lễ tân: (84-28) 3822 8888
+Email hỗ trợ: Nhom10@newworldsaigon.VAA.com
+
+Thời gian hoạt động lễ tân: 24/7
+
+Giờ nhận phòng và trả phòng:
+Giờ nhận phòng (check-in): từ 14:00
+Giờ trả phòng (check-out): trước 12:00 trưa
+Nhận phòng sớm: phụ thuộc tình trạng phòng, có thể tính phí
+Trả phòng trễ: có thể tính thêm phí tùy khung giờ
+
+Chính sách trẻ em:
+Trẻ dưới 6 tuổi: miễn phí, ngủ chung giường
+Trẻ từ 6 đến 11 tuổi: phụ thu bữa sáng tùy quy định
+Trẻ từ 12 tuổi trở lên: tính như người lớn
+Giường phụ: có cung cấp, có phụ phí
+
+Chính sách hủy phòng:
+Hủy trước 72 giờ so với check-in: miễn phí
+Hủy trong vòng 72 giờ: tính phí 1 đêm
+Gói không hoàn hủy: không hoàn tiền, không đổi ngày
+Chatbot không hỗ trợ hoàn tiền/hủy phòng. Anh/chị vui lòng vào trang Lịch sử đặt phòng hoặc liên hệ lễ tân.
+
+Chính sách hút thuốc và thú cưng:
+Phòng hút thuốc và không hút thuốc có phân khu riêng
+Thú cưng không được phép
+
+Dịch vụ khách sạn:
+Hồ bơi ngoài trời, tầng 6, 06:00 – 21:00, miễn phí cho khách lưu trú
+Phòng gym 05:30 – 22:00, miễn phí
+Spa 10:00 – 22:00, có tính phí theo gói
+Quầy bar Sunset Lounge 10:00 – 24:00
+Nhà hàng buffet sáng Saigon Taste 06:00 – 10:00
+Nhà hàng Skyline Dining 11:00 – 22:00
+Đưa đón sân bay, dịch vụ giặt ủi, thuê xe du lịch, đặt tour
+
+Các câu hỏi phổ biến FAQ:
+Khách sạn có bao gồm ăn sáng không
+Có gói bao gồm ăn sáng và không bao gồm ăn sáng. Thông tin hiển thị rõ khi đặt phòng.
+
+Buffet sáng phục vụ giờ nào
+Phục vụ 06:00 đến 10:00 tại tầng 2 Saigon Taste.
+
+Có phòng cho gia đình không
+Family Suite và Deluxe có thể chứa gia đình nhỏ.
+
+Có bãi đỗ xe không
+Có hầm gửi xe tầng B1 B2.
+
+Có hỗ trợ thanh toán khi nhận phòng không
+Một số gói có thể thanh toán khi nhận phòng.
+
+Có thể xem phòng trước khi đặt không
+Vui lòng liên hệ lễ tân để được hỗ trợ.
+
+Quy trình thu thập thông tin khi đặt phòng:
+Hỏi ngày check-in
+Hỏi ngày check-out
+Hỏi số người lớn
+Hỏi số trẻ em
+Hỏi loại phòng mong muốn
+Hỏi thông tin liên hệ
+
+Thông điệp đề xuất phòng mẫu:
+Dựa trên thông tin 2 người lớn 1 trẻ em và ngày 10 đến 12 tháng 12 chúng tôi gợi ý phòng Deluxe City View hoặc Family Suite. Deluxe City View phù hợp với ngân sách và tiện nghi tiêu chuẩn. Family Suite rộng hơn phù hợp gia đình.
+
+Kịch bản hội thoại mẫu:
+Khách: Anh muốn đặt phòng
+Chatbot: Anh cho em xin ngày đến và ngày rời ạ
+Khách: 10 đến 12 tháng 12
+Chatbot: Dạ mình đi mấy người ạ
+Khách: 2 người lớn 1 bé 7 tuổi
+Chatbot: Em gợi ý phòng Deluxe City View phù hợp nhu cầu của mình với mức giá tham khảo từ 1.8 đến 2.3 triệu mỗi đêm. Anh có muốn tạo yêu cầu đặt phòng không
+Khách: Có
+Chatbot: Anh cho em xin tên, số điện thoại và email
+
+Chủ đề: Câu hỏi thường gặp mở rộng FAQ
+Chatbot phải trả lời chính xác và nhất quán dựa trên nội dung này.
+
+Câu hỏi: Khách sạn có spa không
+Trả lời: Khách sạn có spa tại tầng 6, hoạt động từ 10:00 đến 22:00. Có nhiều lựa chọn massage và chăm sóc da. Khách nên đặt lịch trước giờ sử dụng.
+
+Câu hỏi: Hồ bơi phục vụ đến mấy giờ
+Trả lời: Hồ bơi mở cửa từ 06:00 đến 21:00 hằng ngày và miễn phí cho khách lưu trú.
+
+Câu hỏi: Khách sạn có phòng cho người khuyết tật không
+Trả lời: Khách sạn có hỗ trợ phòng dành cho khách có nhu cầu đặc biệt. Vui lòng thông báo yêu cầu khi đặt phòng.
+
+Câu hỏi: Có chính sách hoàn tiền không
+Trả lời: Hoàn tiền phụ thuộc gói đặt phòng. Gói linh hoạt được hoàn nếu hủy trước 72 giờ. Gói không hoàn hủy không hỗ trợ hoàn tiền.
+
+Câu hỏi: Giá phòng có bao gồm thuế và phí dịch vụ không
+Trả lời: Giá hiển thị trên trang thường chưa bao gồm thuế và phí dịch vụ. Thuế và phí sẽ hiển thị trước bước thanh toán.
+
+Câu hỏi: Có xe đưa đón sân bay không
+Trả lời: Có dịch vụ đưa đón sân bay có tính phí. Cần cung cấp số chuyến bay và giờ hạ cánh.
+
+Câu hỏi: Có thể thêm bữa sáng khi đến khách sạn không
+Trả lời: Có thể mua bữa sáng thêm tại quầy lễ tân hoặc đặt trước.
+
+Câu hỏi: Khách sạn có phòng kết nối liền nhau không
+Trả lời: Có, tùy thuộc tình trạng phòng lúc nhận. Vui lòng ghi chú khi đặt phòng.
+
+Câu hỏi: Có hỗ trợ trang trí phòng kỷ niệm không
+Trả lời: Có các gói trang trí phòng sinh nhật hoặc anniversary, có tính phí. Liên hệ lễ tân để biết chi tiết.
+
+Câu hỏi: Có cho phép mang đồ ăn bên ngoài vào không
+Trả lời: Được mang đồ ăn nhẹ và nước uống phù hợp. Không cho phép mang bếp điện nấu nướng.
+
+Câu hỏi: Có cho thuê xe máy hoặc ô tô không
+Trả lời: Có dịch vụ thuê xe máy và thuê xe ô tô du lịch theo ngày. Vui lòng cung cấp bằng lái hợp lệ.
+
+Chủ đề: Gợi ý phòng theo nhu cầu
+Chatbot phải chọn lựa dựa trên mục đích của khách.
+
+Nhu cầu: Đi công tác
+Gợi ý: Deluxe City View hoặc Executive Suite là lựa chọn tốt cho khách đi công tác nhờ không gian làm việc và yên tĩnh.
+
+Nhu cầu: Kỷ niệm ngày cưới
+Gợi ý: Premier River View hoặc Executive Suite, đề nghị dịch vụ trang trí phòng và trà chiều tại lounge.
+
+Nhu cầu: Gia đình có trẻ nhỏ
+Gợi ý: Family Suite hoặc Deluxe City View.
+
+Nhu cầu: Tiết kiệm ngân sách
+Gợi ý: Standard City View.
+
+Nhu cầu: View đẹp chụp ảnh
+Gợi ý: Premier River View với tầm nhìn sông.
+
+Chủ đề: Kịch bản hội thoại mở rộng
+
+Case: Khách hỏi giá không nói ngày
+Khách: Cho hỏi giá phòng bao nhiêu
+Chatbot: Giá phòng thay đổi theo thời điểm và chương trình khuyến mãi. Anh chị cho em xin ngày nhận phòng và trả phòng để em báo giá chính xác hơn.
+
+Case: Khách muốn xem hình ảnh phòng
+Chatbot: Anh chị có thể xem hình ảnh phòng chi tiết trong mục Phòng tại trang chủ. Nếu anh chị muốn em có thể gợi ý loại phòng phù hợp.
+
+Case: Khách không chắc chọn phòng nào
+Chatbot: Anh chị ưu tiên mức giá hợp lý, phòng rộng rãi, hay view đẹp. Em sẽ gợi ý theo nhu cầu.
+
+Case: Khách hỏi còn phòng không
+Chatbot: Em sẽ kiểm tra giúp. Anh chị cho em ngày đến, ngày rời và số khách để em kiểm tra tình trạng phòng.
+
+Case: Khách cung cấp thông tin thiếu
+Chatbot: Em cần thêm thông tin để hỗ trợ chính xác hơn. Anh chị vui lòng cung cấp ngày check-in, ngày check-out và số khách ạ.
+
+Case: Khách yêu cầu hủy booking
+Chatbot: Chatbot không hỗ trợ hoàn tiền/hủy phòng. Anh/chị vui lòng vào trang Lịch sử đặt phòng hoặc liên hệ lễ tân.
+
+Case: Lỗi không tìm thấy booking
+Chatbot: Em chưa tìm thấy mã booking này. Anh chị kiểm tra lại giúp em hoặc cung cấp số điện thoại đã dùng để đặt phòng.
+
+Chủ đề: Câu trả lời fallback và lỗi
+Trường hợp chatbot không hiểu câu hỏi:
+"Em xin lỗi, hiện tại em chưa có thông tin cho câu hỏi này. Anh chị vui lòng hỏi cụ thể hơn hoặc chọn một trong các nội dung sau: đặt phòng, kiểm tra đơn, giá phòng, dịch vụ, chính sách."
+
+Trường hợp yêu cầu nằm ngoài phạm vi:
+"Yêu cầu này cần nhân viên hỗ trợ trực tiếp. Em đã ghi nhận và sẽ chuyển cho bộ phận CSKH liên hệ anh chị."

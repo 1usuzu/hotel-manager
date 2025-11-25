@@ -4,7 +4,6 @@ import { AuthProvider } from '@/features/auth/AuthProvider'
 import { ThemeProvider } from '@/features/theme/ThemeProvider'
 
 import HomePage from '@/pages/HomePage'
-import HotelDetailPage from '@/pages/hotels/HotelDetailPage'
 import RoomDetailPage from '@/pages/rooms/RoomDetailPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
@@ -19,6 +18,8 @@ import AboutPage from '@/pages/AboutPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import BookingResultPage from '@/pages/BookingResultPage'
 import UserPage from '@/pages/UserPage'
+import ChatWidget from '@/features/chat/ChatWidget'
+
 import ScrollToTop from '@/components/ScrollToTop'
 
 function AppRoutes() {
@@ -27,7 +28,6 @@ function AppRoutes() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/hotels/:id" element={<HotelDetailPage />} />
         <Route path="/rooms/:id" element={<RoomDetailPage />} />
 
         <Route path="/login" element={<LoginPage />} />
@@ -47,6 +47,7 @@ function AppRoutes() {
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <ChatWidget />
     </>
   )
 }

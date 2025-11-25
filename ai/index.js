@@ -1,4 +1,3 @@
-// ai/src/index.js
 import express from 'express';
 import cors from 'cors';
 import { env } from './config/env.js';
@@ -14,7 +13,7 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'ai', time: new Date().toISOString() });
 });
 
-// Test RAG thô (không qua Vistral)
+// Test RAG
 app.post('/chat/test-rag', async (req, res) => {
   try {
     const { query } = req.body || {};
@@ -35,33 +34,20 @@ app.post('/chat/test-rag', async (req, res) => {
   }
 });
 
-// =======================
-// 🔥 CHAT CHÍNH (đã fix)
-// =======================
+// Chat đầy đủ (RAG + Vistral)
 app.post('/chat', async (req, res) => {
   try {
-    const { message, query, userId, accessToken } = req.body || {};
+    const { query, userId } = req.body || {};
 
-    // FE gửi message → ưu tiên message
-    const finalQuery = message || query;
-
-    if (!finalQuery || !finalQuery.trim()) {
-      return res.status(400).json({
-        error: 'message hoặc query là bắt buộc.'
-      });
+    if (!query || !query.trim()) {
+      return res.status(400).json({ error: 'query is required' });
     }
 
-    console.log('[AI] /chat body =', { message, query, userId });
-
-    const { answer, passages } = await chatWithRag({
-      query: finalQuery,
-      userId,
-      accessToken
-    });
+    const { answer, passages } = await chatWithRag({ query, userId });
 
     res.json({
       ok: true,
-      query: finalQuery,
+      query,
       answer,
       context: passages
     });

@@ -24,7 +24,7 @@ function ThemeToggleButton({ theme, toggleTheme }) {
           : 'bg-slate-900/90 border border-slate-600 text-slate-100 hover:bg-slate-800')
       }
     >
-      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+      {/* <span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> */}
       <span>
         {isLight ? 'Chuyển sang chế độ tối' : 'Chuyển sang chế độ sáng'}
       </span>

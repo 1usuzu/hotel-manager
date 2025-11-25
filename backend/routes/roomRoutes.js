@@ -1,11 +1,17 @@
-const express = require('express')
-const router = express.Router()
-const { searchRooms, getRoomDetails } = require('../controllers/roomController')
+const express = require('express');
+const router = express.Router();
+const roomController = require('../controllers/roomController');
+const {
+  searchRooms,
+  getRoomDetails,
+  getRoomByNumber,
+  getRecommendedRooms,
+} = require('../controllers/roomController')
 
 router.get('/search', searchRooms)
+router.get('/number/:roomNumber', roomController.getRoomByNumber);
+router.get('/recommendations', getRecommendedRooms);
 router.get('/:id', getRoomDetails)
-
-// tạm thời bỏ route review
-// router.post('/:id/reviews', addReview)
+router.get('/:id', roomController.getRoomById)
 
 module.exports = router

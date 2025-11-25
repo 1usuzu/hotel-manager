@@ -10,6 +10,7 @@ export default function RoomsInfo(){
         <div className="bg-white p-6 rounded shadow">Thông tin chi tiết các loại phòng (placeholder). Bạn có thể thêm bảng so sánh tiện nghi, hình ảnh và giá.</div>
       </main>
       <Footer />
+      
     </div>
   )
 }

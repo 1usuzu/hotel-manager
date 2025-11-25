@@ -4,129 +4,219 @@ import { useEffect, useState } from 'react'
 import Header from '@/layouts/Header'
 import Footer from '@/layouts/Footer'
 import HeroSection from '@/features/home/HeroSection'
-import { hotels } from '@/features/hotels/data'
 import { FaCalendar } from 'react-icons/fa'
 import { HiUsers } from 'react-icons/hi'
+import { useTheme } from '@/features/theme/ThemeProvider'
+import { searchRooms } from '@/api/roomApi'
 
-function Stars({ value = 4 }) {
-  return (
-    <div className="flex items-center text-amber-400">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          className={`w-4 h-4 ${i < value ? 'opacity-100' : 'opacity-30'}`}
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 0 0 .95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 0 0-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 0 0-1.176 0l-3.38 2.455c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 0 0-.364-1.118L2.06 9.397c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 0 0 .95-.69l1.286-3.97z" />
-        </svg>
-      ))}
-    </div>
-  )
-}
-
-function HotelCard({ hotel }) {
-  function createRipple(e) {
-    const el = e.currentTarget
-    const rect = el.getBoundingClientRect()
-    const circle = document.createElement('span')
-    const size = Math.max(rect.width, rect.height)
-
-    circle.style.width = circle.style.height = `${size}px`
-    circle.style.left = `${e.clientX - rect.left - size / 2}px`
-    circle.style.top = `${e.clientY - rect.top - size / 2}px`
-    circle.className = 'ripple'
-
-    el.classList.add('ripple-wrapper')
-    el.appendChild(circle)
-
-    setTimeout(() => {
-      circle.remove()
-    }, 650)
-  }
-
+// Card gợi ý phòng trên HomePage – style giống card trong SearchPage
+function SuggestedRoomCard({ room, onBook, onViewDetail, isLight }) {
   return (
     <div
-      className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition relative clickable-card"
-      onMouseDown={createRipple}
+      className={
+        'rounded-2xl overflow-hidden flex flex-col shadow-sm border transition hover:-translate-y-1 hover:shadow-lg ' +
+        (isLight
+          ? 'bg-white border-slate-200'
+          : 'bg-white/5 border-amber-400/20')
+      }
     >
-      <div className="h-48 bg-gray-200 overflow-hidden">
-        <img
-          src={hotel.image}
-          alt={hotel.name}
-          className="w-full h-full object-cover"
-        />
+      {/* Khung ảnh (placeholder) */}
+      <div
+        className={
+          'w-full h-40 flex items-center justify-center text-xs ' +
+          (isLight ? 'bg-slate-100 text-slate-500' : 'bg-slate-800/60 text-gray-200')
+        }
+      >
+        Ảnh phòng sẽ được cập nhật sau
       </div>
 
-      <div className="p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold text-lg">{hotel.name}</h3>
-            <p className="text-sm text-gray-500">{hotel.location}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-lg font-bold">${hotel.price}</div>
-            <div className="text-sm text-gray-500">/night</div>
-          </div>
-        </div>
+      <div className="p-4 space-y-1 flex-1 flex flex-col">
+        <h2
+          className={
+            'font-semibold ' +
+            (isLight ? 'text-slate-900' : 'text-amber-300')
+          }
+        >
+          Phòng {room.room_number || room.room_id}
+        </h2>
 
-        <div className="mt-3 flex items-center justify-between">
-          <Stars value={hotel.rating} />
-          <Link to={`/hotels/${hotel.id}`} className="btn-primary">
-            Xem phòng
-          </Link>
+        <p
+          className={
+            'text-sm ' + (isLight ? 'text-slate-700' : 'text-gray-200')
+          }
+        >
+          Loại: {room.type || 'Không xác định'}
+        </p>
+
+        <p
+          className={
+            'text-sm ' + (isLight ? 'text-slate-700' : 'text-gray-200')
+          }
+        >
+          Sức chứa: {room.capacity || 2} khách
+        </p>
+
+        <p
+          className={
+            'text-sm ' + (isLight ? 'text-slate-700' : 'text-gray-200')
+          }
+        >
+          Giá:{' '}
+          <span className="font-semibold text-amber-500">
+            {room.price
+              ? `${Number(room.price).toLocaleString('vi-VN')} đ / đêm`
+              : 'Liên hệ'}
+          </span>
+        </p>
+
+        <p
+          className={
+            'text-xs mt-1 ' +
+            (isLight ? 'text-slate-500' : 'text-gray-400')
+          }
+        >
+          Tình trạng:{' '}
+          <span className="font-medium">
+            {room.status === 'available' ? 'Còn trống' : room.status}
+          </span>
+        </p>
+
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => onBook(room)}
+            className="text-sm font-semibold text-black bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-1.5 rounded-full hover:scale-105 hover:shadow-[0_0_15px_rgba(251,191,36,0.6)] transition"
+          >
+            Đặt phòng
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onViewDetail(room)}
+            className={
+              'text-sm underline ' +
+              (isLight ? 'text-slate-600 hover:text-amber-500' : 'text-gray-200 hover:text-amber-300')
+            }
+          >
+            Xem chi tiết
+          </button>
         </div>
       </div>
     </div>
   )
 }
+
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
 
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
-  const [roomsCount, setRoomsCount] = useState('1') // tạm dùng làm capacity
+  const [guests, setGuests] = useState('2')
+
+  // Gợi ý phòng từ DB
+  const [suggestedRooms, setSuggestedRooms] = useState([])
+  const [suggestLoading, setSuggestLoading] = useState(false)
+  const [suggestError, setSuggestError] = useState('')
 
   useEffect(() => {
     document.title = 'Trang chủ | New World Saigon Hotel'
   }, [])
 
+  // Lấy gợi ý phòng từ DB (chưa dùng AI)
+  useEffect(() => {
+    let cancelled = false
+    const fetchSuggestions = async () => {
+      try {
+        setSuggestLoading(true)
+        setSuggestError('')
+
+        // searchRooms không truyền gì -> lấy tất cả phòng available, sort price ASC
+        const data = await searchRooms({})
+        if (cancelled) return
+
+        const list = Array.isArray(data) ? data : []
+        // Giới hạn số lượng gợi ý (vd: 3 phòng)
+        setSuggestedRooms(list.slice(0, 3))
+      } catch (err) {
+        console.error('Lỗi load gợi ý phòng:', err)
+        if (cancelled) return
+        setSuggestError('Không tải được gợi ý phòng. Vui lòng thử lại sau.')
+      } finally {
+        if (cancelled) return
+        setSuggestLoading(false)
+      }
+    }
+
+    fetchSuggestions()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Click "Tìm phòng" → sang trang SearchPage với query
   const handleSearch = (e) => {
     e.preventDefault()
 
     const params = new URLSearchParams()
-
     if (checkIn) params.set('checkIn', checkIn)
     if (checkOut) params.set('checkOut', checkOut)
-    if (roomsCount) params.set('capacity', roomsCount)
+    if (guests) params.set('capacity', guests)
 
     navigate(`/search?${params.toString()}`)
   }
 
+  // Click "Đặt phòng" ở card gợi ý → đi thẳng Booking (Hướng A)
+  const handleBookSuggested = (room) => {
+    if (!room) return
+
+    const roomId = room.room_id || room.id
+    if (!roomId) {
+      console.warn('Không có room_id trong room:', room)
+      return
+    }
+
+    const params = new URLSearchParams()
+    params.set('room', String(roomId))
+    params.set('capacity', String(room.capacity || guests || 2))
+    if (checkIn) params.set('checkIn', checkIn)
+    if (checkOut) params.set('checkOut', checkOut)
+
+    navigate(`/booking?${params.toString()}`)
+  }
+
+  // Xem chi tiết → /rooms/:id
+  const handleViewDetail = (room) => {
+    if (!room) return
+    const id = room.room_id || room.id
+    if (!id) return
+    navigate(`/rooms/${id}`)
+  }
+
   return (
     <div className="min-h-screen">
-      {/* Header luôn fixed, trong suốt ở top */}
       <Header />
+
+      {/* Hero + form tìm phòng */}
       <div className="relative">
         <HeroSection />
 
         <div className="absolute left-0 right-0 bottom-12 flex justify-center z-30">
           <form
             onSubmit={handleSearch}
-            className="hero-search-card bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20 shadow-lg flex flex-col sm:flex-row gap-6 items-center w-[90%] max-w-4xl"
+            className="hero-search-card bg-white/10 backdrop-blur-md border border-amber-400/40 rounded-2xl shadow-xl px-6 py-4 flex flex-col sm:flex-row gap-4 items-center w-[90%] max-w-4xl"
           >
             {/* Ngày đến */}
-            <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-3 flex-1 w-full">
               <div className="flex flex-1 flex-col">
                 <div className="flex flex-row items-center justify-start gap-2 mb-[5px]">
-                  <FaCalendar className="w-6 h-6 text-amber-400" />
+                  <FaCalendar className="w-5 h-5 text-amber-400" />
                   <div className="text-sm text-gray-200 leading-none">
                     Ngày đến
                   </div>
                 </div>
-
                 <input
                   type="date"
                   value={checkIn}
@@ -137,15 +227,14 @@ export default function HomePage() {
             </div>
 
             {/* Ngày đi */}
-            <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-3 flex-1 w-full">
               <div className="flex flex-1 flex-col">
                 <div className="flex flex-row items-center justify-start gap-2 mb-[5px]">
-                  <FaCalendar className="w-6 h-6 text-amber-400" />
+                  <FaCalendar className="w-5 h-5 text-amber-400" />
                   <div className="text-sm text-gray-200 leading-none">
                     Ngày đi
                   </div>
                 </div>
-
                 <input
                   type="date"
                   value={checkOut}
@@ -155,24 +244,24 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Số phòng */}
-            <div className="flex items-center gap-3">
+            {/* Số khách */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="flex flex-1 flex-col">
                 <div className="flex flex-row items-center justify-start gap-2 mb-[5px]">
-                  <HiUsers className="w-6 h-6 text-amber-400" />
+                  <HiUsers className="w-5 h-5 text-amber-400" />
                   <div className="text-sm text-gray-200 leading-none">
-                    Số Người
+                    Số khách
                   </div>
                 </div>
-
                 <select
+                  value={guests}
+                  onChange={(e) => setGuests(e.target.value)}
                   className="search-field w-32 text-black rounded px-2 py-1"
-                  value={roomsCount}
-                  onChange={(e) => setRoomsCount(e.target.value)}
                 >
-                  <option value="1">1 Người</option>
-                  <option value="2">2 Người</option>
-                  <option value="3">3 Người</option>
+                  <option value="1">1 người</option>
+                  <option value="2">2 người</option>
+                  <option value="3">3 người</option>
+                  <option value="4">4 người</option>
                 </select>
               </div>
             </div>
@@ -181,31 +270,78 @@ export default function HomePage() {
               type="submit"
               className="luxury-button bg-amber-500 hover:bg-amber-400 text-black px-6 py-2 rounded-lg font-medium"
             >
-              Tìm Phòng
+              Tìm phòng
             </button>
           </form>
         </div>
       </div>
 
-      {/* Phần dưới mới nền tối */}
-      <main className="bg-dark-900">
+      {/* Phần nội dung chính */}
+      <main className={isLight ? 'bg-slate-50' : 'bg-dark-900'}>
+        {/* Đề xuất cho bạn */}
         <section className="layout-container py-16">
           <div className="flex items-center justify-between pt-16 mb-8">
-            <h2 className="luxury-header text-3xl text-white font-bold">
+            <h2
+              className={
+                'luxury-header text-3xl font-bold ' +
+                (isLight ? 'text-slate-900' : 'text-white')
+              }
+            >
               Đề xuất cho bạn
             </h2>
+
             <Link
               to="/search"
-              className="luxury-button-outline text-white font-bold"
+              className={
+                'inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-semibold transition ' +
+                (isLight
+                  ? 'border-amber-600 text-amber-600 hover:bg-amber-50'
+                  : 'border-white/60 text-white hover:bg-white/10')
+              }
             >
               Xem tất cả
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-8">
-            {hotels.map((h) => (
-              <HotelCard key={h.id} hotel={h} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+            {suggestLoading && (
+              <p className={isLight ? 'text-slate-600' : 'text-slate-300'}>
+                Đang tải gợi ý phòng phù hợp cho bạn...
+              </p>
+            )}
+
+            {!suggestLoading && suggestError && (
+              <p className="col-span-full text-sm text-red-500">
+                {suggestError}
+              </p>
+            )}
+
+            {!suggestLoading &&
+              !suggestError &&
+              suggestedRooms.length === 0 && (
+                <p
+                  className={
+                    'col-span-full text-sm ' +
+                    (isLight ? 'text-slate-600' : 'text-slate-300')
+                  }
+                >
+                  Hiện chưa có gợi ý riêng cho bạn. Hãy thử tìm phòng ở mục
+                  tìm kiếm phía trên.
+                </p>
+              )}
+
+            {!suggestLoading &&
+              !suggestError &&
+              suggestedRooms.length > 0 &&
+              suggestedRooms.map((room) => (
+                <SuggestedRoomCard
+                  key={room.room_id || room.id}
+                  room={room}
+                  onBook={handleBookSuggested}
+                  onViewDetail={handleViewDetail}
+                  isLight={isLight}
+                />
+              ))}
           </div>
         </section>
       </main>

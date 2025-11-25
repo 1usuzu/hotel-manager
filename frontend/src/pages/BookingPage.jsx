@@ -4,24 +4,54 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Header from '@/layouts/Header'
 import Footer from '@/layouts/Footer'
 import { useAuth } from '@/features/auth/AuthProvider'
-import { getRoomById } from '@/api/roomApi'
+// ĐỔI: dùng API lấy phòng theo số phòng
+import { getRoomByNumber } from '@/api/roomApi'
 import { createBooking } from '@/api/bookingApi'
+
+function normalizeQueryDate(value) {
+  if (!value) return ''
+
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const todayMid = new Date(currentYear, now.getMonth(), now.getDate()).getTime()
+
+  let d = new Date(value)
+  if (Number.isNaN(d.getTime())) return ''
+
+  // nếu năm < năm hiện tại → đổi thành năm hiện tại
+  if (d.getFullYear() < currentYear) {
+    d.setFullYear(currentYear)
+  }
+
+  // nếu ngày nằm trước hôm nay → chuyển sang năm sau
+  if (d.getTime() < todayMid) {
+    d.setFullYear(currentYear + 1)
+  }
+
+  return d.toISOString().slice(0, 10)
+}
 
 export default function BookingPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()          // 👈 lấy user từ Auth
+  const { user } = useAuth() // lấy user từ Auth
 
   const searchParams = new URLSearchParams(location.search)
-  const roomIdFromQuery = searchParams.get('room')
+  // THỰC CHẤT đây là room_number do AI gửi
+  const roomId = searchParams.get('room')
   const amountFromQuery = searchParams.get('amount')
+
+  const rawCheckIn = searchParams.get('checkIn')
+  const rawCheckOut = searchParams.get('checkOut')
 
   const [room, setRoom] = useState(null)
   const [roomLoading, setRoomLoading] = useState(false)
   const [roomError, setRoomError] = useState('')
 
-  const [checkIn, setCheckIn] = useState(searchParams.get('checkIn') || '')
-  const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '')
+  // FIX: Normalize date đầu vào
+  const [checkIn, setCheckIn] = useState(() => normalizeQueryDate(rawCheckIn))
+  const [checkOut, setCheckOut] = useState(() => normalizeQueryDate(rawCheckOut))
+
   const [guests, setGuests] = useState(searchParams.get('capacity') || '1')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -36,7 +66,7 @@ export default function BookingPage() {
     document.title = 'Đặt phòng | New World Saigon Hotel'
   }, [])
 
-  // 👉 autofill từ user khi có
+  // autofill từ user khi có
   useEffect(() => {
     if (!user) return
     setFullName((prev) => prev || user.username || '')
@@ -44,13 +74,24 @@ export default function BookingPage() {
     setPhone((prev) => prev || user.phone || '')
   }, [user])
 
+
+
+  // tải thông tin phòng theo SỐ PHÒNG trong query
   useEffect(() => {
-    if (!roomIdFromQuery) return
+    if (!roomId) {
+      setRoom(null)
+      setRoomError(
+        'Không có phòng nào được chọn. Vui lòng quay lại trang tìm phòng hoặc chatbot để chọn phòng trước khi đặt.'
+      )
+      return
+    }
+
     const fetchRoom = async () => {
       setRoomLoading(true)
       setRoomError('')
       try {
-        const data = await getRoomById(roomIdFromQuery)
+        // Lấy phòng theo room_number
+        const data = await getRoomByNumber(roomId)
         setRoom(data)
       } catch (err) {
         console.error(err)
@@ -64,7 +105,7 @@ export default function BookingPage() {
       }
     }
     fetchRoom()
-  }, [roomIdFromQuery])
+  }, [roomId])
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0
@@ -92,10 +133,14 @@ export default function BookingPage() {
     setError('')
     setMessage('')
 
-    if (!roomIdFromQuery) {
-      setError('Thiếu thông tin phòng.')
+    // cần có room + room_id thật trong DB
+    if (!room || !room.room_id || roomError) {
+      setError(
+        'Thiếu hoặc không tải được thông tin phòng. Vui lòng quay lại chọn phòng rồi thử lại.'
+      )
       return
     }
+
     if (!checkIn || !checkOut) {
       setError('Vui lòng chọn ngày nhận phòng và trả phòng.')
       return
@@ -104,7 +149,8 @@ export default function BookingPage() {
     try {
       setSubmitting(true)
       const payload = {
-        room_id: Number(roomIdFromQuery),
+        // DÙNG room.room_id (PK) chứ không dùng query
+        room_id: Number(room.room_id),
         check_in: checkIn,
         check_out: checkOut,
         guests: Number(guests),
@@ -175,7 +221,7 @@ export default function BookingPage() {
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                         placeholder="Nguyễn Văn A"
                       />
                     </div>
@@ -187,7 +233,7 @@ export default function BookingPage() {
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                         placeholder="09xxxxxxxx"
                       />
                     </div>
@@ -202,7 +248,7 @@ export default function BookingPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                         placeholder="you@example.com"
                       />
                     </div>
@@ -213,7 +259,7 @@ export default function BookingPage() {
                       <select
                         value={guests}
                         onChange={(e) => setGuests(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                       >
                         <option value="1">1 khách</option>
                         <option value="2">2 khách</option>
@@ -232,7 +278,7 @@ export default function BookingPage() {
                         type="date"
                         value={checkIn}
                         onChange={(e) => setCheckIn(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                       />
                     </div>
                     <div>
@@ -243,7 +289,7 @@ export default function BookingPage() {
                         type="date"
                         value={checkOut}
                         onChange={(e) => setCheckOut(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                        className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                       />
                     </div>
                   </div>
@@ -256,7 +302,7 @@ export default function BookingPage() {
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       rows={3}
-                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
+                      className="w-full text-black border border-slate-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400 bg-white"
                       placeholder="Ví dụ: check-in muộn, yêu cầu giường phụ..."
                     />
                   </div>
@@ -293,11 +339,7 @@ export default function BookingPage() {
                     </p>
                   ) : roomError ? (
                     <p className="text-sm text-red-600">{roomError}</p>
-                  ) : !room ? (
-                    <p className="text-sm text-slate-500">
-                      Không tìm thấy thông tin phòng.
-                    </p>
-                  ) : (
+                  ) : room ? (
                     <>
                       <div className="flex gap-3 mb-3">
                         {room.image_url && (
@@ -362,7 +404,7 @@ export default function BookingPage() {
                         toán dựa trên giá phòng và số đêm thực tế.
                       </p>
                     </>
-                  )}
+                  ) : null}
                 </div>
 
                 {amountFromQuery && (
@@ -373,9 +415,7 @@ export default function BookingPage() {
                         {formatCurrency(amountFromQuery)}
                       </span>
                     </p>
-                    <p>
-                      Backend vẫn sẽ tính lại để đảm bảo chính xác.
-                    </p>
+                    <p>Backend vẫn sẽ tính lại để đảm bảo chính xác.</p>
                   </div>
                 )}
               </aside>

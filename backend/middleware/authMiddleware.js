@@ -28,11 +28,14 @@ module.exports = (req, res, next) => {
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({
         error: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.',
+        errorCode: 'TOKEN_EXPIRED',
       });
     }
 
     return res.status(401).json({
       error: 'Token không hợp lệ.',
+      errorCode: 'TOKEN_INVALID',
     });
+
   }
 };

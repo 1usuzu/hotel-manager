@@ -9,13 +9,44 @@ export function useAuth() {
   return useContext(AuthContext)
 }
 
+function isTokenExpired(token) {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return true
+
+    const payloadBase64 = parts[1]
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+
+    const payloadJson = atob(payloadBase64)
+    const payload = JSON.parse(payloadJson)
+
+    if (!payload.exp) return false
+
+    const nowInSeconds = Date.now() / 1000
+    return payload.exp < nowInSeconds
+  } catch (e) {
+    console.error('Lỗi decode JWT:', e)
+    return true
+  }
+}
+
 function getInitialUser() {
   if (typeof window === 'undefined') return null
+
   const stored = localStorage.getItem(STORAGE_KEY)
   if (!stored) return null
+
   try {
     const parsed = JSON.parse(stored)
-    if (!parsed || !parsed.token) return null
+    if (!parsed?.token) return null
+
+    if (isTokenExpired(parsed.token)) {
+      console.warn('Token hết hạn, xoá user khỏi localStorage')
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+
     return parsed
   } catch (e) {
     console.error('Lỗi parse user từ localStorage:', e)
@@ -27,7 +58,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => getInitialUser())
   const [loading, setLoading] = useState(false)
 
-  // Đồng bộ nếu có tab khác xoá user
   useEffect(() => {
     const handler = (e) => {
       if (e.key === STORAGE_KEY) {
@@ -38,22 +68,15 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('storage', handler)
   }, [])
 
-  // Login
   const login = async (arg1, arg2, arg3) => {
     setLoading(true)
-
-    // Hỗ trợ cả 2 kiểu:
-    // - login({ email, password, rememberMe })
-    // - login(email, password, rememberMe)
     let email, password, rememberMe
 
     if (typeof arg1 === 'string') {
-      // kiểu cũ
       email = arg1
       password = arg2
       rememberMe = arg3
     } else if (arg1 && typeof arg1 === 'object') {
-      // kiểu mới
       email = arg1.email
       password = arg1.password
       rememberMe = arg1.rememberMe
@@ -83,8 +106,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-
-  // Register
   const register = async ({ username, email, password, confirmPassword }) => {
     setLoading(true)
     try {
@@ -103,7 +124,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Logout
   const logout = () => {
     setUser(null)
     localStorage.removeItem(STORAGE_KEY)
@@ -120,4 +140,3 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-

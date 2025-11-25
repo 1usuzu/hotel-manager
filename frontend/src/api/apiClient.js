@@ -1,4 +1,3 @@
-// src/api/apiClient.js
 import axios from 'axios'
 
 const api = axios.create({
@@ -9,15 +8,34 @@ api.interceptors.request.use((config) => {
   const stored = localStorage.getItem('user')
   if (stored) {
     try {
-      const user = JSON.parse(stored)
-      if (user.token) {
-        config.headers.Authorization = `Bearer ${user.token}`
+      const parsed = JSON.parse(stored)
+      if (parsed.token) {
+        config.headers.Authorization = `Bearer ${parsed.token}`
       }
-    } catch (e) {
-      console.error('Lỗi parse user trong apiClient', e)
+    } catch (err) {
+      console.error(err)
     }
   }
   return config
 })
+
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const data = error.response.data
+
+      if (
+        data?.errorCode === 'TOKEN_EXPIRED' ||
+        data?.errorCode === 'TOKEN_INVALID'
+      ) {
+        console.warn('Token expired, auto logout')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
 
 export default api

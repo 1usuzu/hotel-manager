@@ -4,6 +4,7 @@ import 'aos/dist/aos.css'
 import Header from '@/layouts/Header'
 import Footer from '@/layouts/Footer'
 
+
 import { PhoneIcon } from "@heroicons/react/outline"
 import { MailIcon } from "@heroicons/react/outline"
 import { LocationMarkerIcon } from "@heroicons/react/outline"
