@@ -21,7 +21,7 @@ export async function addRoomReview(id, { rating, comment }) {
 }
 
 export async function getRoomByNumber(id) {
-  const res = await api.get(`/rooms/${id}`)
+  const res = await api.get(`/rooms/number/${id}`)
   return res.data
 }
 

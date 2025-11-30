@@ -139,14 +139,13 @@ exports.getRoomByNumber = async (req, res) => {
         .json({ error: 'Thiếu tham số roomNumber trong request.' })
     }
 
-    const id = Number(String(roomNumber).trim())
-    if (!id || Number.isNaN(id)) {
-      return res
-        .status(400)
-        .json({ error: 'roomNumber phải là số (room_id).' })
-    }
+    // 1. Tìm theo room_number (string)
+    let room = await Room.findOne({ where: { room_number: String(roomNumber) } });
 
-    const room = await Room.findByPk(id)
+    // 2. Nếu không thấy, thử tìm theo ID (nếu là số)
+    if (!room && !Number.isNaN(Number(roomNumber))) {
+       room = await Room.findByPk(Number(roomNumber));
+    }
 
     if (!room) {
       return res

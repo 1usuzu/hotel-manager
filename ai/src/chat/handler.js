@@ -36,7 +36,9 @@ function sanitizeAnswer(text) {
 
 // =============== UTIL: TRÍCH SỐ PHÒNG ===============
 function extractRoomNumberFromText(text) {
-  const m = text.match(/phòng\s*(\d{1,4})/i);
+  // Regex: tìm "phòng X" nhưng X KHÔNG được theo sau bởi "người" hoặc "khách"
+  // (?!\s*(người|khách)) là negative lookahead
+  const m = text.match(/phòng\s*(\d{1,4})(?!\s*(người|khách))/i);
   if (!m) return null;
   return m[1]; // string
 }
@@ -47,10 +49,31 @@ async function handleBookingConfirm({ userKey, query, passages }) {
   const roomNumber = extractRoomNumberFromText(lower);
 
   // không có số phòng → yêu cầu user nói rõ
+  // không có số phòng → THAY VÌ ĐÒI SỐ PHÒNG, HÃY TÌM PHÒNG THEO NHU CẦU
   if (!roomNumber) {
+     // Trích xuất filter từ query
+     const filters = await extractRoomFiltersFromQuery(query);
+
+     // Nếu có thông tin tìm kiếm (số người, ngày...)
+     if (filters.capacity || (filters.checkIn && filters.checkOut) || filters.type || filters.maxPrice) {
+        // Gọi searchRoomsAPI để tìm phòng phù hợp
+        try {
+          const rooms = await searchRoomsAPI(filters);
+          if (rooms && rooms.length > 0) {
+              const context = buildRoomsApiContext(rooms, filters);
+              return {
+                  answer: `Bạn chưa chọn số phòng cụ thể. Dựa trên yêu cầu của bạn, mình tìm thấy các phòng sau:\n${context}\n\nBạn muốn chốt phòng nào? Hãy nhắn "Đặt phòng số..." nhé.`,
+                  passages
+              };
+          }
+        } catch (err) {
+          console.error('Error searching rooms in fallback:', err);
+        }
+     }
+
     return {
       answer:
-        'Bạn muốn chốt đặt phòng nào? Hãy nói rõ số phòng, ví dụ: "đặt phòng 202".',
+        'Bạn muốn đặt phòng nào? Hãy nói rõ số phòng (ví dụ "đặt phòng 202") hoặc cho mình biết nhu cầu (số người, ngày đi) để mình tìm giúp nhé.',
       passages
     };
   }
