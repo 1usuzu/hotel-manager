@@ -6,29 +6,38 @@ import '@/styles/auth.css'
 export default function RegisterPage() {
   const { register } = useAuth()
   const navigate = useNavigate()
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
 
+
   const valid =
-    name.trim().length > 2 && email.includes('@') && password.length >= 6
+    name.trim().length > 2 &&
+    email.includes('@') &&
+    password.length >= 6 &&
+    confirmPassword.length >= 6 &&
+    password === confirmPassword
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     if (!valid) {
-      setError('Tên > 2 ký tự, email hợp lệ và mật khẩu >= 6 ký tự')
+      setError('Thông tin không hợp lệ hoặc mật khẩu không khớp')
       return
     }
 
     try {
       setError('')
-      await register(name, email, password, password)
+      await register({ username: name, email, password, confirmPassword })
       navigate('/login')
     } catch (err) {
       console.error(err)
       const msg =
-        err?.response?.data?.error || 'Đăng ký thất bại, vui lòng thử lại'
+        err?.response?.data?.error ||
+        'Đăng ký thất bại, vui lòng thử lại'
       setError(msg)
     }
   }
@@ -72,6 +81,17 @@ export default function RegisterPage() {
               className="auth-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="auth-field">
+            <label>Xác nhận mật khẩu</label>
+            <input
+              type="password"
+              className="auth-input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
             />
           </div>

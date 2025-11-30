@@ -169,19 +169,6 @@ export default function UserPage() {
     }
   }
 
-  const readablePaymentStatus = (payment) => {
-    if (!payment) return 'Chưa thanh toán'
-    switch (payment.status) {
-      case 'pending':
-        return 'Đang chờ thanh toán'
-      case 'success':
-        return 'Đã thanh toán'
-      case 'failed':
-        return 'Thanh toán thất bại'
-      default:
-        return payment.status || 'Không rõ'
-    }
-  }
 
   const readablePaymentMethod = (payment) => {
     if (!payment) return 'N/A'
@@ -635,14 +622,6 @@ export default function UserPage() {
                         <span className="text-slate-600">Trạng thái đơn</span>
                         <span className="font-medium">
                           {readableBookingStatus(selectedBooking.status)}
-                        </span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span className="text-slate-600">
-                          Trạng thái thanh toán
-                        </span>
-                        <span className="font-medium text-emerald-600">
-                          {readablePaymentStatus(selectedBooking.Payment)}
                         </span>
                       </p>
                       <p className="flex justify-between">

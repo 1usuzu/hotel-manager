@@ -58,7 +58,7 @@ exports.createBooking = async (req, res) => {
       room_id,
       check_in: checkInDate,
       check_out: checkOutDate,
-      status: 'pending', // Chờ thanh toán hoặc chờ admin xác nhận
+      status: 'confirmed', // Tự động xác nhận (theo yêu cầu mới)
     })
 
     // 5. Tính tổng tiền

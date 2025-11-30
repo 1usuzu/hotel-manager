@@ -9,8 +9,22 @@ import { HiUsers } from 'react-icons/hi'
 import { useTheme } from '@/features/theme/ThemeProvider'
 import { searchRooms } from '@/api/roomApi'
 
-// Card gợi ý phòng trên HomePage – style giống card trong SearchPage
+// Card gợi ý phòng trên HomePage
 function SuggestedRoomCard({ room, onBook, onViewDetail, isLight }) {
+  const API_BASE =
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
+  const API_ORIGIN = API_BASE.replace(/\/api$/, '')
+
+  const imageSrc = room.image_url
+    ? room.image_url.startsWith('http')
+      ? room.image_url
+      : `${API_ORIGIN}${room.image_url}`
+    : room.image
+    ? room.image.startsWith('http')
+      ? room.image
+      : `${API_ORIGIN}${room.image}`
+    : null
+
   return (
     <div
       className={
@@ -20,14 +34,26 @@ function SuggestedRoomCard({ room, onBook, onViewDetail, isLight }) {
           : 'bg-white/5 border-amber-400/20')
       }
     >
-      {/* Khung ảnh (placeholder) */}
-      <div
-        className={
-          'w-full h-40 flex items-center justify-center text-xs ' +
-          (isLight ? 'bg-slate-100 text-slate-500' : 'bg-slate-800/60 text-gray-200')
-        }
-      >
-        Ảnh phòng sẽ được cập nhật sau
+      {/* Ảnh phòng */}
+      <div className="w-full h-40 overflow-hidden flex items-center justify-center">
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt={room.room_number || room.room_id}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div
+            className={
+              'w-full h-full flex items-center justify-center text-xs ' +
+              (isLight
+                ? 'bg-slate-100 text-slate-500'
+                : 'bg-slate-800/60 text-gray-200')
+            }
+          >
+            Ảnh phòng đang cập nhật
+          </div>
+        )}
       </div>
 
       <div className="p-4 space-y-1 flex-1 flex flex-col">

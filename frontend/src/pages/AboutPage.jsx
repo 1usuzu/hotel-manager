@@ -112,7 +112,7 @@ export default function AboutPage() {
         </div>
         <div data-aos="fade-left">
           <img
-            src="https://images.unsplash.com/photo-1621426954616-1a0d89338a2a?auto=format&fit=crop&w=1400&q=80"
+            src="./images/hotel-staff.jpg"
             alt="Hotel Staff"
             className="rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.2)]"
           />

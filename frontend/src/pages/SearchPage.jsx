@@ -19,6 +19,10 @@ export default function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const API_BASE =
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+  const API_ORIGIN = API_BASE.replace(/\/api$/, '');
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -264,9 +268,22 @@ export default function SearchPage() {
                 key={room.room_id}
                 className="bg-white/10 backdrop-blur-md border border-amber-400/20 rounded-xl overflow-hidden flex flex-col shadow-[0_0_20px_rgba(15,23,42,0.8)]"
               >
-                {/* Khung ảnh placeholder */}
-                <div className="w-full h-40 bg-slate-200/20 flex items-center justify-center text-xs text-gray-200">
-                  Ảnh phòng sẽ được cập nhật sau
+                <div className="w-full h-40 bg-slate-200/20 overflow-hidden flex items-center justify-center">
+                  {room.image_url ? (
+                    <img
+                      src={
+                        room.image_url.startsWith('http')
+                          ? room.image_url
+                          : `${API_ORIGIN}${room.image_url}`
+                      }
+                      alt={room.room_number}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-200">
+                      Ảnh phòng đang cập nhật
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-4 space-y-1 flex-1 flex flex-col">

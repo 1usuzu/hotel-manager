@@ -10,37 +10,37 @@ const SERVICES = [
     title: 'Spa & Massage',
     desc: 'Thư giãn với liệu trình chăm sóc cơ thể chuyên sâu, sử dụng tinh dầu thiên nhiên và không gian yên tĩnh tuyệt đối.',
     image:
-      'https://images.unsplash.com/photo-1616469829935-c2f0e0d0b9de?auto=format&fit=crop&w=1500&q=80',
+      './images/spa-massage.jpg',
   },
   {
     title: 'Nhà hàng & Ẩm thực',
     desc: 'Thưởng thức tinh hoa ẩm thực Á – Âu trong không gian sang trọng, được phục vụ bởi đầu bếp đạt chuẩn 5 sao.',
     image:
-      'https://images.unsplash.com/photo-1600891963937-bf7de5e4d1aa?auto=format&fit=crop&w=1500&q=80',
+      './images/restaurant-cuisine.jpg',
   },
   {
     title: 'Hồ bơi & Quầy bar',
     desc: 'Tận hưởng làn nước mát lạnh cùng quầy bar phục vụ cocktail, đồ uống cao cấp và khung cảnh thành phố lung linh.',
     image:
-      'https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&w=1500&q=80',
+      './images/pool-bar.jpg',
   },
   {
     title: 'Phòng Gym hiện đại',
     desc: 'Phòng tập được trang bị đầy đủ thiết bị cao cấp, giúp bạn duy trì sức khỏe và thể lực dù đang đi nghỉ dưỡng.',
     image:
-      'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=1500&q=80',
+      './images/gym-equipment.jpg',
   },
   {
     title: 'Dịch vụ đưa đón cao cấp',
     desc: 'Xe limousine sang trọng cùng tài xế chuyên nghiệp sẵn sàng phục vụ bạn từ sân bay đến khách sạn và ngược lại.',
     image:
-      'https://images.unsplash.com/photo-1605559424843-9e4c3a8ce6b0?auto=format&fit=crop&w=1500&q=80',
+      './images/luxury-transport.jpg',
   },
   {
     title: 'Tiệc & Hội nghị',
     desc: 'Không gian rộng rãi, trang bị âm thanh – ánh sáng hiện đại, phù hợp cho sự kiện, hội thảo và lễ cưới sang trọng.',
     image:
-      'https://images.unsplash.com/photo-1602783271123-4e32d5f7af2f?auto=format&fit=crop&w=1500&q=80',
+      './images/events-conferences.jpg',
   },
 ]
 

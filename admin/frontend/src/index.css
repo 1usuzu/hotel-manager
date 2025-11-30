@@ -1,0 +1,770 @@
+/* ===================== THEME ===================== */
+:root {
+  --bg: #0b1220;
+  --panel: #101827;
+  --muted: #9aa6b2;
+  --text: #e6eef8;
+  --accent: #facc15;
+  --border: rgba(255, 255, 255, 0.05);
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  font-family: Inter, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ===================== ADMIN LAYOUT ===================== */
+.admin-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.admin-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.admin-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ===================== SIDEBAR ===================== */
+.sidebar {
+  width: 240px;
+  background: var(--panel);
+  height: 100%;
+  padding: 22px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 22px;
+  letter-spacing: 1px;
+}
+
+.menu-btn {
+  padding: 12px;
+  background: transparent;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: 0.2s;
+}
+
+.menu-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.menu-btn.active {
+  background: rgba(250, 204, 21, 0.1);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+/* ===================== TOPBAR ===================== */
+.topbar {
+  height: 66px;
+  background: #111a2c;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+}
+
+.top-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.btn-outline {
+  padding: 8px 12px;
+  background: transparent;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* ===================== CARD ===================== */
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.5);
+}
+
+.card-title {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.card-number {
+  margin-top: 10px;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* ===================== DASHBOARD GRID ===================== */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+/* ===================== TABLE ===================== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  padding: 12px;
+  text-align: left;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.table tbody tr:hover td {
+  background: rgba(255,255,255,0.03);
+}
+/* ===================== INPUT ===================== */
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+}
+
+/* floating group */
+.field {
+  position: relative;
+}
+
+.floating {
+  width: 100%;
+  padding: 14px 12px 10px 12px;
+  background: transparent;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 15px;
+  transition: 0.18s ease;
+}
+
+.floating:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.2);
+}
+
+.floating-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 14px;
+  color: var(--muted);
+  background: transparent;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: 0.18s ease;
+}
+
+/* label nổi khi input được focus hoặc có giá trị */
+.floating:focus + .floating-label,
+.floating:not(:placeholder-shown) + .floating-label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--panel);
+  padding: 0 6px;
+}
+
+/* ===================== BUTTONS ===================== */
+.btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-accept {
+  background: var(--accent);
+  color: #0b1220;
+}
+
+.btn-reject {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* ===================== LOGIN ===================== */
+
+.login-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 420px;
+  padding: 28px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border: 1px solid var(--border);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+  animation: fadeIn 0.6s ease;
+}
+
+.login-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* login button */
+.btn-login, .btn-primary {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #facc15, #fbbf24);
+  color: #0e1220;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.btn-login:hover,
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(250, 204, 21, 0.25);
+}
+
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.err {
+  margin-top: 10px;
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+/* fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+/* ===================== MODAL OVERLAY ===================== */
+.modal-backdrop,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);           /* nền tối phủ 100% */
+  backdrop-filter: blur(6px) saturate(0.8); /* mờ toàn bộ background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  animation: fadeIn 0.45s ease;
+}
+
+/* ===================== MODAL WINDOW ===================== */
+.modal,
+.modal-window {
+  width: 720px;
+  max-width: 95%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.05);
+  padding: 20px;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.7);
+  animation: modalPop 0.35s ease;
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ===================== MODAL LAYOUT ===================== */
+.modal-window {
+  display: grid;
+  grid-template-columns: 1fr 340px; /* trái: thông tin – phải: nút duyệt */
+  gap: 18px;
+}
+
+.modal-body {
+  padding: 6px;
+}
+
+.modal-actions {
+  background: linear-gradient(180deg, rgba(252,211,77,0.12), rgba(252,201,63,0.06));
+  border-left: 1px solid rgba(252,211,77,0.18);
+  padding: 18px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-actions h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0e1220;
+}
+
+/* primary approve button */
+.btn-approve {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #fde047, #fbbf24);
+  color: #081226;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(245,158,11,0.2);
+  transition: 0.15s ease;
+}
+
+.btn-approve:hover {
+  transform: translateY(-1px);
+}
+
+/* reject */
+.btn-reject {
+  padding: 12px;
+  border-radius: 10px;
+  background: #ef4444;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* close button */
+.btn-outline {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* responsive modal */
+@media (max-width: 900px) {
+  .modal-window {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===================== TABLE PREMIUM ===================== */
+.table tbody tr:hover td {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+  transform: translateY(-1px);
+  transition: 0.18s ease;
+}
+
+/* ===================== DASHBOARD GRID ===================== */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+  margin-top: 22px;
+}
+
+/* dashboard card */
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.55);
+  transition: 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 45px rgba(0,0,0,0.65);
+}
+
+.card-title {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.card-number {
+  font-size: 34px;
+  font-weight: 800;
+  margin-top: 10px;
+  color: var(--accent);
+}
+/* ===================== UTILITY TEXT ===================== */
+.small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ===================== GLOBAL ANIMATIONS ===================== */
+.fade-in {
+  animation: fadeIn 0.45s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ===================== LOGIN FULLSCREEN ===================== */
+
+.login-fixed,
+.login-centered,
+.login-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* refined login card */
+.login-card.premium,
+.login-card {
+  width: 420px;
+  padding: 28px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.012));
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+  animation: fadeIn 0.6s ease;
+}
+
+.login-title,
+.login-heading {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+/* refined floating input */
+.field {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.floating {
+  width: 100%;
+  padding: 16px 12px 10px 12px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 15px;
+  transition: 0.18s ease;
+}
+
+.floating:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(250,204,21,0.18);
+}
+
+.floating-label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: all 0.18s ease;
+  pointer-events: none;
+}
+
+.floating:focus + .floating-label,
+.floating:not(:placeholder-shown) + .floating-label {
+  top: -10px;
+  left: 10px;
+  background: var(--panel);
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--accent);
+}
+
+/* login button premium */
+.btn-primary,
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 0;
+  background: linear-gradient(90deg, #facc15, #fbbf24);
+  color: #0e1320;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.18s ease;
+  margin-top: 6px;
+}
+
+.btn-primary:hover,
+.btn-login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(250,204,21,0.22);
+}
+
+.btn-primary:disabled,
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* error text */
+.err {
+  color: #ff6b6b;
+  font-weight: 700;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+/* ===================== RESPONSIVE ADMIN ===================== */
+@media (max-width: 980px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .menu-btn {
+    flex: 1;
+    margin-right: 6px;
+    text-align: center;
+  }
+
+  .modal-window {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===================== CRAZY SMOOTH SHADOW FIX ===================== */
+.card, .modal-window, .login-card {
+  transform: translateZ(0); /* fix shimmering trên một số màn hình */
+}
+
+/* ===================== PREMIUM HOVER SMOOTH ===================== */
+.menu-btn, .btn, .floating, .card {
+  transition: 0.2s ease;
+}
+/* ================= LOGIN V3 LUXURY ================= */
+
+.login-v3-wrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at top, #1a2336 0%, #0b1220 70%);
+}
+
+/* card */
+.login-v3-card {
+  width: 420px;
+  padding: 32px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 20px 65px rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.55s ease;
+}
+
+/* Logo text — luxury hotel style */
+.login-v3-logo {
+  text-align: center;
+  font-size: 17px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+/* title */
+.login-v3-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 26px;
+  color: var(--text);
+}
+
+/* floating field */
+.v3-field {
+  position: relative;
+}
+
+.v3-input {
+  width: 100%;
+  padding: 16px 14px 10px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.v3-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(250,204,21,0.2);
+}
+
+.v3-label {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-size: 14px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: 0.18s ease;
+}
+
+/* label pop */
+.v3-input:focus + .v3-label,
+.v3-input:not(:placeholder-shown) + .v3-label {
+  top: -10px;
+  left: 12px;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--panel);
+  padding: 0 6px;
+  border-radius: 6px;
+}
+
+/* error */
+.v3-error {
+  margin-top: 10px;
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+/* login button */
+.v3-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 22px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #facc15, #fbbf24);
+  color: #111827;
+  border: none;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.v3-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(250,204,21,0.3);
+}
+
+.v3-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ===================== UTILITIES ===================== */
+.text-black {
+  color: #000000 !important;
+}
+
+.text-black .input,
+.text-black select {
+  color: #000000 !important;
+  border: 1px solid #ccc !important;
+  background: rgba(0,0,0,0.05);
+}
+
+.text-black .btn-outline {
+  color: #000000 !important;
+  border-color: #ccc !important;
+}

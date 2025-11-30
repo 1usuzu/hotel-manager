@@ -12,7 +12,7 @@ const Room = sequelize.define('Room', {
     allowNull: false,
   },
   type: {
-    type: DataTypes.STRING, // Ví dụ: 'Standard', 'VIP'
+    type: DataTypes.STRING,
     allowNull: false,
   },
   price: {
@@ -30,11 +30,13 @@ const Room = sequelize.define('Room', {
     type: DataTypes.INTEGER, // Sức chứa (số người)
     allowNull: false,
     defaultValue: 2,
-  }
-  // Bạn nên cân nhắc thêm trường 'location' hoặc 'hotel_id' ở đây
-  // location: {
-  //   type: DataTypes.STRING,
-  // }
+  },
+
+  image_url: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+
 }, {
   tableName: 'rooms',
   timestamps: false,

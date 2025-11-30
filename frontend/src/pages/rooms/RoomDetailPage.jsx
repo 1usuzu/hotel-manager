@@ -14,6 +14,10 @@ export default function RoomDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // FE user nên mặc định là 4000 chứ không phải 4001
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
+  const API_ORIGIN = API_BASE.replace(/\/api$/, '')
+
   useEffect(() => {
     AOS.init({ duration: 800, once: true })
   }, [])
@@ -22,7 +26,14 @@ export default function RoomDetailPage() {
     async function fetchRoom() {
       try {
         const data = await getRoomDetails(id)
-        setRoom(data)
+
+        // backend có thể trả { room: {...} } hoặc {...}
+        const roomData = data.room || data
+
+        // debug nếu cần
+        // console.log('Room detail from API:', data, '=> roomData:', roomData)
+
+        setRoom(roomData)
       } catch (e) {
         console.error(e)
         setError('Không tìm thấy phòng')
@@ -55,13 +66,15 @@ export default function RoomDetailPage() {
     )
   }
 
-  // nếu sau này bạn lưu ảnh vào room.image
-  const roomImg =
-    room.image && room.image.startsWith('http')
-      ? room.image
-      : room.image
-      ? `http://localhost:4000${room.image}`
-      : null
+  const roomImg = room.image_url
+    ? (room.image_url.startsWith('http')
+        ? room.image_url
+        : `${API_ORIGIN}${room.image_url}`)
+    : room.image && room.image.startsWith('http')
+    ? room.image
+    : room.image
+    ? `${API_ORIGIN}${room.image}`
+    : null
 
   return (
     <div className="min-h-screen bg-[#050816] text-white">
@@ -74,14 +87,12 @@ export default function RoomDetailPage() {
               {roomImg ? (
                 <img
                   src={roomImg}
-                  alt={`Phòng ${room.room_number}`}
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                  alt={room.room_number || `Phòng ${room.room_id}`}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="text-center px-6">
-                  <p className="text-sm text-gray-300">
-                    Chưa có ảnh phòng. Ảnh sẽ được cập nhật sau.
-                  </p>
+                <div className="w-full h-full flex items-center justify-center bg-slate-800/40 text-slate-300 text-sm">
+                  Ảnh phòng đang cập nhật
                 </div>
               )}
             </div>
@@ -100,10 +111,10 @@ export default function RoomDetailPage() {
               Sức chứa: {room.capacity || '?'} người
             </p>
             <p className="text-gray-300">
-              Giá: {room.price?.toLocaleString('vi-VN') || 'N/A'} đ / đêm
+              Giá: {Number(room.price).toLocaleString('vi-VN') || 'N/A'} đ / đêm
             </p>
             <p className="text-gray-300">
-              Trạng thái:{' '}
+              Trạng thái{' '}
               <span
                 className={
                   room.status === 'available'
