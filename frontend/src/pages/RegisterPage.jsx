@@ -45,11 +45,30 @@ export default function RegisterPage() {
   return (
     <div
       className="auth-container"
-      style={{ backgroundImage: `url('/images/hotel2.jpg')` }}
+      style={{ backgroundImage: `url('images/bg-login.jpg')` }}
     >
       <div className="auth-overlay" />
       <div className="auth-box">
-        <h1 className="auth-title">Đăng ký</h1>
+        <div className="title relative flex items-center justify-center w-full">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute left-0 p-2 mb-3 rounded-full border border-gray-200 text-gray-600 hover:text-black hover:border-gray-400 transition"
+            aria-label="Go back"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              className="w-5 h-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+
+          <h1 className="auth-title">Đăng ký</h1>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="auth-field">
