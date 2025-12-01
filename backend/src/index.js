@@ -14,7 +14,7 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve ảnh uploads (dùng chung thư mục với admin backend)
+// Serve ảnh uploads (dùng chung thư mục với admin backend) 
 const uploadsDir = path.join(__dirname, '..', 'admin', 'backend', 'uploads');
 console.log('User backend serving uploads dir:', uploadsDir);
 
