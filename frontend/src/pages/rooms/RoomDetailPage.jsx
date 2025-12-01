@@ -5,6 +5,7 @@ import 'aos/dist/aos.css'
 import Header from '@/layouts/Header'
 import Footer from '@/layouts/Footer'
 import { getRoomDetails } from '@/api/roomApi'
+import { getRoomReviews } from '@/api/reviewApi'
 
 export default function RoomDetailPage() {
   const { id } = useParams()
@@ -14,8 +15,13 @@ export default function RoomDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // FE user nên mặc định là 4000 chứ không phải 4001
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
+  // Reviews state
+  const [reviews, setReviews] = useState([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [reviewsError, setReviewsError] = useState('')
+
+  const API_BASE =
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
   const API_ORIGIN = API_BASE.replace(/\/api$/, '')
 
   useEffect(() => {
@@ -26,13 +32,7 @@ export default function RoomDetailPage() {
     async function fetchRoom() {
       try {
         const data = await getRoomDetails(id)
-
-        // backend có thể trả { room: {...} } hoặc {...}
         const roomData = data.room || data
-
-        // debug nếu cần
-        // console.log('Room detail from API:', data, '=> roomData:', roomData)
-
         setRoom(roomData)
       } catch (e) {
         console.error(e)
@@ -44,6 +44,50 @@ export default function RoomDetailPage() {
 
     fetchRoom()
   }, [id])
+
+  // Load reviews của phòng này
+  useEffect(() => {
+    async function fetchReviews() {
+      if (!id) return
+
+      try {
+        setReviewsLoading(true)
+        const data = await getRoomReviews(id)
+        setReviews(data)
+      } catch (e) {
+        console.error(e)
+        setReviewsError('Không thể tải đánh giá')
+      } finally {
+        setReviewsLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [id])
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('vi-VN')
+  }
+
+  const getAvatarUrl = (userId) => {
+    const avatars = [
+      'https://randomuser.me/api/portraits/men/32.jpg',
+      'https://randomuser.me/api/portraits/women/44.jpg',
+      'https://randomuser.me/api/portraits/men/67.jpg',
+      'https://randomuser.me/api/portraits/women/68.jpg',
+      'https://randomuser.me/api/portraits/men/45.jpg',
+      'https://randomuser.me/api/portraits/women/50.jpg',
+    ]
+    return avatars[userId % avatars.length]
+  }
+
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0
+    const sum = reviews.reduce((acc, r) => acc + r.rating, 0)
+    return (sum / reviews.length).toFixed(1)
+  }
 
   const handleBook = () => {
     if (!room) return
@@ -67,9 +111,9 @@ export default function RoomDetailPage() {
   }
 
   const roomImg = room.image_url
-    ? (room.image_url.startsWith('http')
-        ? room.image_url
-        : `${API_ORIGIN}${room.image_url}`)
+    ? room.image_url.startsWith('http')
+      ? room.image_url
+      : `${API_ORIGIN}${room.image_url}`
     : room.image && room.image.startsWith('http')
     ? room.image
     : room.image
@@ -137,6 +181,108 @@ export default function RoomDetailPage() {
               >
                 Đặt phòng ngay
               </button>
+            )}
+          </div>
+        </section>
+
+        {/* Phần đánh giá */}
+        <section className="mt-16" data-aos="fade-up">
+          <div className="border-t border-slate-700 pt-10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-amber-400">
+                  Đánh giá từ khách hàng
+                </h2>
+                {reviews.length > 0 && (
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-5 h-5 ${
+                            i < Math.round(calculateAverageRating())
+                              ? 'text-amber-400'
+                              : 'text-gray-600'
+                          }`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.06 9.397c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 00.95-.69l1.286-3.97z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-lg font-semibold text-amber-400">
+                      {calculateAverageRating()}
+                    </span>
+                    <span className="text-sm text-gray-400">
+                      ({reviews.length} đánh giá)
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {reviewsLoading ? (
+              <div className="text-center py-8 text-gray-400">
+                <p>Đang tải đánh giá...</p>
+              </div>
+            ) : reviewsError ? (
+              <div className="text-center py-8 text-red-400">
+                <p>{reviewsError}</p>
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-700">
+                <p className="text-gray-400">
+                  Chưa có đánh giá nào cho phòng này.
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Hãy là người đầu tiên đánh giá sau khi trải nghiệm!
+                </p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {reviews.map((review) => (
+                  <div
+                    key={review.review_id}
+                    className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-5 hover:border-amber-400/30 transition-all duration-300"
+                  >
+                    <div className="flex items-start gap-4 mb-3">
+                      <img
+                        src={getAvatarUrl(review.user_id)}
+                        alt={review.User?.username || 'User'}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-amber-400"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-white">
+                          {review.User?.username || 'Khách hàng'}
+                        </h4>
+                        <p className="text-xs text-gray-400">
+                          {formatDate(review.created_at)}
+                        </p>
+                        <div className="flex mt-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <svg
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < review.rating
+                                  ? 'text-amber-400'
+                                  : 'text-gray-600'
+                              }`}
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.06 9.397c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 00.95-.69l1.286-3.97z" />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {review.comment || 'Không có nhận xét'}
+                    </p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </section>

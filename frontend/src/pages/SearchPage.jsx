@@ -20,8 +20,8 @@ export default function SearchPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const API_BASE =
-    import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
-  const API_ORIGIN = API_BASE.replace(/\/api$/, '');
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
+  const API_ORIGIN = API_BASE.replace(/\/api$/, '')
 
 
   const handleChange = (e) => {

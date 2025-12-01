@@ -13,12 +13,22 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Serve static files (uploads)
+const path = require('path')
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '../admin/backend/uploads'))
+)
+
 // Models
 const User = require('./models/User')
 const Room = require('./models/Room')
 const Booking = require('./models/Booking')
 const Review = require('./models/Review')
 const Payment = require('./models/Payment')
+const Contact = require('./models/Contact')
+const UserPreferences = require('./models/UserPreferences')
+const KnowledgeBase = require('./models/KnowledgeBase')
 
 // Database Associations
 User.hasMany(Booking, { foreignKey: 'user_id' })
@@ -39,18 +49,23 @@ Payment.belongsTo(User, { foreignKey: 'user_id' })
 Booking.hasOne(Payment, { foreignKey: 'booking_id' })
 Payment.belongsTo(Booking, { foreignKey: 'booking_id' })
 
+User.hasOne(UserPreferences, { foreignKey: 'user_id' })
+UserPreferences.belongsTo(User, { foreignKey: 'user_id' })
+
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'))
 app.use('/api/rooms', require('./routes/roomRoutes'))
 app.use('/api/bookings', require('./routes/bookingRoutes'))
 app.use('/api/payment', require('./routes/paymentRoutes'))
+app.use('/api/reviews', require('./routes/reviewRoutes'))
+app.use('/api/contacts', require('./routes/contactRoutes'))
 
 // Health check
 app.get('/', (req, res) => {
   res.json({
     status: 'OK',
     message: 'Hotel Manager API',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   })
 })
 
@@ -72,10 +87,12 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('✓ Kết nối database thành công')
-    return sequelize.sync({ alter: true })
+    // Tắt sync để tránh conflict với Supabase
+    // return sequelize.sync({ alter: true })
+    return Promise.resolve()
   })
   .then(() => {
-    console.log('✓ Đồng bộ database thành công')
+    console.log('✓ Database đã sẵn sàng')
     app.listen(PORT, () => {
       console.log(`✓ Server đang chạy tại http://localhost:${PORT}`)
     })

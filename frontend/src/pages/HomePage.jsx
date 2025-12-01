@@ -35,23 +35,30 @@ function SuggestedRoomCard({ room, onBook, onViewDetail, isLight }) {
       }
     >
       {/* Ảnh phòng */}
-      <div className="w-full h-40 overflow-hidden flex items-center justify-center">
+      <div className="w-full h-40 overflow-hidden flex items-center justify-center bg-gradient-to-br from-amber-100 to-amber-200">
         {imageSrc ? (
           <img
             src={imageSrc}
             alt={room.room_number || room.room_id}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.parentElement.innerHTML = `
+                <div class="w-full h-full flex flex-col items-center justify-center text-amber-700">
+                  <svg class="w-12 h-12 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  </svg>
+                  <span class="text-sm font-medium">Phòng ${room.room_number || room.room_id}</span>
+                </div>
+              `
+            }}
           />
         ) : (
-          <div
-            className={
-              'w-full h-full flex items-center justify-center text-xs ' +
-              (isLight
-                ? 'bg-slate-100 text-slate-500'
-                : 'bg-slate-800/60 text-gray-200')
-            }
-          >
-            Ảnh phòng đang cập nhật
+          <div className="w-full h-full flex flex-col items-center justify-center text-amber-700">
+            <svg className="w-12 h-12 mb-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            <span className="text-sm font-medium">Phòng {room.room_number || room.room_id}</span>
           </div>
         )}
       </div>
@@ -171,7 +178,7 @@ export default function HomePage() {
         if (cancelled) return
         setSuggestError('Không tải được gợi ý phòng. Vui lòng thử lại sau.')
       } finally {
-        if (cancelled) return
+        if (cancelled)
         setSuggestLoading(false)
       }
     }

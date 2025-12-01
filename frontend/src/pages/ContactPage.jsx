@@ -3,7 +3,7 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import Header from '@/layouts/Header'
 import Footer from '@/layouts/Footer'
-
+import { sendContact } from '@/api/contactApi'
 
 import { PhoneIcon } from "@heroicons/react/outline"
 import { MailIcon } from "@heroicons/react/outline"
@@ -12,17 +12,42 @@ import { LocationMarkerIcon } from "@heroicons/react/outline"
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true })
   }, [])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.message)
-      return alert('Vui lòng điền đầy đủ thông tin liên hệ!')
-    setSuccess(true)
-    setForm({ name: '', email: '', message: '' })
+    setError('')
+    setSuccess(false)
+
+    if (!form.name || !form.email || !form.message) {
+      setError('Vui lòng điền đầy đủ thông tin liên hệ!')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      await sendContact({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        message: form.message.trim(),
+      })
+
+      setSuccess(true)
+      setForm({ name: '', email: '', message: '' })
+
+      // Ẩn thông báo sau 5s
+      setTimeout(() => setSuccess(false), 5000)
+    } catch (err) {
+      console.error(err)
+      setError(err?.response?.data?.error || 'Lỗi khi gửi tin nhắn. Vui lòng thử lại!')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   useEffect(() => {
@@ -105,54 +130,78 @@ export default function Contact() {
             Gửi tin nhắn cho chúng tôi
           </h2>
 
-          {success ? (
+          {success && (
             <div className="p-6 bg-green-500/20 border border-green-400 rounded-xl text-green-300 mb-8">
-              Cảm ơn bạn! Tin nhắn của bạn đã được gửi thành công.
+              ✓ Cảm ơn bạn! Tin nhắn của bạn đã được gửi thành công.
               Chúng tôi sẽ liên hệ sớm nhất.
             </div>
-          ) : null}
+          )}
+
+          {error && (
+            <div className="p-6 bg-red-500/20 border border-red-400 rounded-xl text-red-300 mb-8">
+              ✗ {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
             <div>
-              <label className="block text-sm mb-1 text-gray-300">Họ và tên</label>
+              <label className="block text-sm mb-1 text-gray-300">
+                Họ và tên <span className="text-red-400">*</span>
+              </label>
               <input
                 type="text"
-                className="w-full p-3 rounded-lg bg-white/10 border border-amber-400/20 focus:border-amber-400 focus:ring-amber-400 text-white outline-none"
+                className="w-full p-3 rounded-lg bg-white/10 border border-amber-400/20 focus:border-amber-400 focus:ring-amber-400 text-white outline-none disabled:opacity-50"
                 placeholder="Nhập họ tên của bạn..."
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
+                disabled={submitting}
+                required
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-1 text-gray-300">Email</label>
+              <label className="block text-sm mb-1 text-gray-300">
+                Email <span className="text-red-400">*</span>
+              </label>
               <input
                 type="email"
-                className="w-full p-3 rounded-lg bg-white/10 border border-amber-400/20 focus:border-amber-400 focus:ring-amber-400 text-white outline-none"
+                className="w-full p-3 rounded-lg bg-white/10 border border-amber-400/20 focus:border-amber-400 focus:ring-amber-400 text-white outline-none disabled:opacity-50"
                 placeholder="Địa chỉ email của bạn..."
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                disabled={submitting}
+                required
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-1 text-gray-300">Nội dung</label>
+              <label className="block text-sm mb-1 text-gray-300">
+                Nội dung <span className="text-red-400">*</span>
+              </label>
               <textarea
                 rows={5}
-                className="w-full p-3 rounded-lg bg-white/10 border border-amber-400/20 focus:border-amber-400 focus:ring-amber-400 text-white outline-none"
-                placeholder="Nhập nội dung tin nhắn..."
+                className="w-full p-3 rounded-lg bg-white/10 border border-amber-400/20 focus:border-amber-400 focus:ring-amber-400 text-white outline-none disabled:opacity-50"
+                placeholder="Nhập nội dung tin nhắn (tối thiểu 10 ký tự)..."
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
+                disabled={submitting}
+                required
+                minLength={10}
+                maxLength={2000}
               />
             </div>
 
             <div className="text-center pt-4">
               <button
                 type="submit"
-                className="px-10 py-3 bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-semibold rounded-lg hover:scale-105 hover:shadow-[0_0_25px_rgba(251,191,36,0.6)] transition-all duration-300"
+                disabled={submitting}
+                className="px-10 py-3 bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-semibold rounded-lg hover:scale-105 hover:shadow-[0_0_25px_rgba(251,191,36,0.6)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                Gửi tin nhắn
+                {submitting ? 'Đang gửi...' : 'Gửi tin nhắn'}
               </button>
+              <p className="text-xs text-gray-400 mt-3">
+                {form.message.length}/2000 ký tự
+              </p>
             </div>
           </form>
         </section>

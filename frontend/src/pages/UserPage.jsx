@@ -37,6 +37,10 @@ export default function UserPage() {
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
+  const API_BASE =
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
+  const API_ORIGIN = API_BASE.replace(/\/api$/, '')
+
   const [activeTab, setActiveTab] = useState('profile')
 
   // PROFILE
@@ -527,6 +531,21 @@ export default function UserPage() {
                               : 'border-slate-200 bg-white hover:bg-slate-50'
                           }`}
                         >
+                          {/* Ảnh phòng */}
+                          {b.Room?.image_url && (
+                            <div className="flex-shrink-0 w-16 h-16 rounded-md overflow-hidden bg-slate-100">
+                              <img
+                                src={
+                                  b.Room.image_url.startsWith('http')
+                                    ? b.Room.image_url
+                                    : `${API_ORIGIN}${b.Room.image_url}`
+                                }
+                                alt={b.Room?.name || 'Room'}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+
                           <div className="flex-1">
                             <div className="flex justify-between items-center mb-1">
                               <p className="font-medium text-slate-900">
@@ -568,6 +587,21 @@ export default function UserPage() {
                   </p>
                 ) : (
                   <>
+                    {/* Ảnh phòng lớn */}
+                    {selectedBooking.Room?.image_url && (
+                      <div className="mb-4 rounded-lg overflow-hidden bg-slate-100">
+                        <img
+                          src={
+                            selectedBooking.Room.image_url.startsWith('http')
+                              ? selectedBooking.Room.image_url
+                              : `${API_ORIGIN}${selectedBooking.Room.image_url}`
+                          }
+                          alt={selectedBooking.Room?.name || 'Room'}
+                          className="w-full h-48 object-cover"
+                        />
+                      </div>
+                    )}
+
                     <div className="space-y-1 text-sm">
                       <p className="flex justify-between">
                         <span className="text-slate-600">Mã booking</span>

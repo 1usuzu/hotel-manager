@@ -9,6 +9,7 @@ const bookingRoutes = require("./routes/booking.routes");
 const reviewRoutes = require("./routes/review.routes");
 const userRoutes = require("./routes/user.routes");
 const knowledgeRoutes = require("./routes/knowledge.routes");
+const contactRoutes = require("./routes/contact.routes");
 
 const app = express();
 app.use(cors());
@@ -33,6 +34,7 @@ app.use("/api/admin/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin/users", userRoutes);
 app.use("/api/admin/kb", knowledgeRoutes);
+app.use("/api/contacts", contactRoutes);
 
 
 

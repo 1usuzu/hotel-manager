@@ -87,13 +87,18 @@ export default function LoginPage() {
           </div>
 
           <div className="auth-remember">
-            <input
-              id="rememberMe"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
+            <div>
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+            <Link to="/forgot-password" className="text-sm text-amber-600 hover:text-amber-700">
+              Quên mật khẩu?
+            </Link>
           </div>
 
           {error && <div className="auth-error">{error}</div>}
