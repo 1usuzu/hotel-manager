@@ -8,39 +8,68 @@ const Payment = require('../models/Payment');
 exports.createBooking = async (req, res) => {
   try {
     const { room_id, check_in, check_out } = req.body
-    const user_id = req.user.id // Lấy từ middleware
+    const user_id = req.user.id
 
-    console.log('>>> createBooking body =', req.body, 'user =', req.user)
+    // Validate required fields
+    if (!room_id || !check_in || !check_out) {
+      return res.status(400).json({ error: 'Thiếu thông tin bắt buộc' })
+    }
 
-    // 1. Kiểm tra ngày hợp lệ
+    // Validate room_id
+    const roomId = Number(room_id)
+    if (isNaN(roomId) || roomId < 1) {
+      return res.status(400).json({ error: 'ID phòng không hợp lệ' })
+    }
+
+    // Validate dates
     const checkInDate = new Date(check_in)
     const checkOutDate = new Date(check_out)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0) // Set về đầu ngày
 
-    if (checkInDate >= checkOutDate) {
-      return res
-        .status(400)
-        .json({ error: 'Ngày check-out phải sau ngày check-in' })
+    if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+      return res.status(400).json({ error: 'Ngày không hợp lệ' })
     }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     if (checkInDate < today) {
       return res
         .status(400)
         .json({ error: 'Ngày check-in không thể ở trong quá khứ' })
     }
 
-    // 2. Kiểm tra phòng có tồn tại không
-    const room = await Room.findByPk(room_id)
+    if (checkOutDate <= checkInDate) {
+      return res
+        .status(400)
+        .json({ error: 'Ngày check-out phải sau ngày check-in' })
+    }
+
+    // Validate booking duration (max 30 days)
+    const nights =
+      (checkOutDate.getTime() - checkInDate.getTime()) /
+      (1000 * 60 * 60 * 24)
+
+    if (nights > 30) {
+      return res
+        .status(400)
+        .json({ error: 'Không thể đặt phòng quá 30 ngày' })
+    }
+
+    // Kiểm tra phòng có tồn tại và available
+    const room = await Room.findByPk(roomId)
     if (!room) {
       return res.status(404).json({ error: 'Không tìm thấy phòng' })
     }
 
-    // 3. Check trùng lịch
+    if (room.status !== 'available') {
+      return res.status(400).json({ error: 'Phòng không khả dụng' })
+    }
+
+    // Check trùng lịch
     const existingBooking = await Booking.findOne({
       where: {
-        room_id: room_id,
-        status: { [Op.ne]: 'cancelled' }, // Không phải là đơn đã hủy
-        // Logic xung đột: (O_in < N_out) AND (O_out > N_in)
+        room_id: roomId,
+        status: { [Op.ne]: 'cancelled' },
         check_in: { [Op.lt]: checkOutDate },
         check_out: { [Op.gt]: checkInDate },
       },
@@ -49,22 +78,19 @@ exports.createBooking = async (req, res) => {
     if (existingBooking) {
       return res
         .status(400)
-        .json({ error: 'Phòng đã được đặt trong khoảng thời gian này.' })
+        .json({ error: 'Phòng đã được đặt trong khoảng thời gian này' })
     }
 
-    // 4. Tạo booking (status: 'pending')
+    // Tạo booking
     const booking = await Booking.create({
       user_id,
-      room_id,
+      room_id: roomId,
       check_in: checkInDate,
       check_out: checkOutDate,
-      status: 'confirmed', // Tự động xác nhận (theo yêu cầu mới)
+      status: 'confirmed',
     })
 
-    // 5. Tính tổng tiền
-    const nights =
-      (checkOutDate.getTime() - checkInDate.getTime()) /
-      (1000 * 60 * 60 * 24)
+    // Tính tổng tiền
     const totalAmount = nights * parseFloat(room.price)
 
     // Lấy booking kèm thông tin phòng
@@ -107,9 +133,15 @@ exports.getMyBookings = async (req, res) => {
 // (Khách hàng) Hủy 1 đơn đặt phòng
 exports.cancelBooking = async (req, res) => {
   try {
+    const bookingId = Number(req.params.id)
+
+    if (isNaN(bookingId) || bookingId < 1) {
+      return res.status(400).json({ error: 'ID booking không hợp lệ' })
+    }
+
     const booking = await Booking.findOne({
       where: {
-        booking_id: req.params.id,
+        booking_id: bookingId,
         user_id: req.user.id,
       },
     })
@@ -123,6 +155,17 @@ exports.cancelBooking = async (req, res) => {
     if (booking.status === 'completed' || booking.status === 'cancelled') {
       return res.status(400).json({
         error: 'Không thể hủy đơn đặt phòng ở trạng thái này',
+      })
+    }
+
+    // Không cho hủy nếu check-in trong vòng 24h
+    const checkInDate = new Date(booking.check_in)
+    const now = new Date()
+    const hoursUntilCheckIn = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60)
+
+    if (hoursUntilCheckIn < 24 && hoursUntilCheckIn > 0) {
+      return res.status(400).json({
+        error: 'Không thể hủy đơn trong vòng 24 giờ trước check-in',
       })
     }
 

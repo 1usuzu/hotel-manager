@@ -5,6 +5,26 @@ const User = require('../models/User');
 
 dotenv.config();
 
+// ================= VALIDATION HELPERS ==================
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+  if (!phone) return true; // phone là optional
+  const phoneRegex = /^[0-9]{10,11}$/;
+  return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+}
+
+function isValidUsername(username) {
+  return username && username.trim().length >= 2 && username.trim().length <= 100;
+}
+
+function isValidPassword(password) {
+  return password && password.length >= 6 && password.length <= 100;
+}
+
 // Helper hash mật khẩu
 async function setUserPassword(user, plainPassword) {
   const salt = await bcrypt.genSalt(10);
@@ -16,14 +36,41 @@ async function setUserPassword(user, plainPassword) {
 // ================= REGISTER ==================
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, confirmPassword, phone } = req.body;
+    let { username, email, password, confirmPassword, phone } = req.body;
 
+    // Trim inputs
+    username = username?.trim();
+    email = email?.trim().toLowerCase();
+    phone = phone?.trim();
+
+    // Validate required fields
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Vui lòng nhập đầy đủ thông tin' });
     }
 
+    // Validate username
+    if (!isValidUsername(username)) {
+      return res.status(400).json({ error: 'Tên người dùng phải từ 2-100 ký tự' });
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Email không hợp lệ' });
+    }
+
+    // Validate password
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ error: 'Mật khẩu phải từ 6-100 ký tự' });
+    }
+
+    // Validate password confirmation
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Mật khẩu xác nhận không khớp' });
+    }
+
+    // Validate phone if provided
+    if (phone && !isValidPhone(phone)) {
+      return res.status(400).json({ error: 'Số điện thoại không hợp lệ (10-11 chữ số)' });
     }
 
     // Kiểm tra email trùng
@@ -58,7 +105,18 @@ exports.register = async (req, res) => {
 // ================= LOGIN ==================
 exports.login = async (req, res) => {
   try {
-    const { email, password, rememberMe } = req.body;
+    let { email, password, rememberMe } = req.body;
+
+    // Trim and validate inputs
+    email = email?.trim().toLowerCase();
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Vui lòng nhập email và mật khẩu' });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Email không hợp lệ' });
+    }
 
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(404).json({ error: 'Email không tồn tại' });
@@ -80,6 +138,7 @@ exports.login = async (req, res) => {
         username: user.username,
         email: user.email,
         phone: user.phone,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -89,7 +148,7 @@ exports.login = async (req, res) => {
 };
 
 
-// ================= RESET / CHANGE PASSWORD ==================
+// ================= CHANGE PASSWORD ==================
 exports.resetPassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -102,8 +161,9 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ error: 'Vui lòng nhập đầy đủ các trường' });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Mật khẩu mới phải dài >= 6 ký tự' });
+    // Validate new password
+    if (!isValidPassword(newPassword)) {
+      return res.status(400).json({ error: 'Mật khẩu mới phải từ 6-100 ký tự' });
     }
 
     if (newPassword !== confirmPassword) {
@@ -115,6 +175,12 @@ exports.resetPassword = async (req, res) => {
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Mật khẩu hiện tại không đúng' });
+
+    // Kiểm tra mật khẩu mới không giống mật khẩu cũ
+    const isSameAsOld = await bcrypt.compare(newPassword, user.password);
+    if (isSameAsOld) {
+      return res.status(400).json({ error: 'Mật khẩu mới phải khác mật khẩu hiện tại' });
+    }
 
     await setUserPassword(user, newPassword);
 
@@ -146,19 +212,41 @@ exports.getProfile = async (req, res) => {
 // ================= UPDATE PROFILE ==================
 exports.updateProfile = async (req, res) => {
   try {
-    const { username, email, phone } = req.body;
+    let { username, email, phone } = req.body;
+
+    // Trim inputs
+    username = username?.trim();
+    email = email?.trim().toLowerCase();
+    phone = phone?.trim();
 
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
 
+    // Validate and update username
+    if (username !== undefined) {
+      if (!isValidUsername(username)) {
+        return res.status(400).json({ error: 'Tên người dùng phải từ 2-100 ký tự' });
+      }
+      user.username = username;
+    }
+
+    // Validate and update email
     if (email && email !== user.email) {
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ error: 'Email không hợp lệ' });
+      }
       const existed = await User.findOne({ where: { email } });
       if (existed) return res.status(400).json({ error: 'Email này đã được sử dụng' });
       user.email = email;
     }
 
-    if (username) user.username = username;
-    if (typeof phone !== 'undefined') user.phone = phone;
+    // Validate and update phone
+    if (phone !== undefined) {
+      if (phone && !isValidPhone(phone)) {
+        return res.status(400).json({ error: 'Số điện thoại không hợp lệ (10-11 chữ số)' });
+      }
+      user.phone = phone || null;
+    }
 
     await user.save();
 

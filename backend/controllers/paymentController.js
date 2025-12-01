@@ -22,26 +22,47 @@ exports.createPaymentUrl = async (req, res) => {
     const { booking_id } = req.body
     const user_id = req.user.id
 
-    console.log('>>> createPaymentUrl body =', req.body, 'user =', req.user)
+    // Validate booking_id
+    if (!booking_id) {
+      return res.status(400).json({ error: 'Thiếu booking_id' })
+    }
 
-    // 1. Lấy booking + room, KHÔNG tin amount từ client
+    const bookingId = Number(booking_id)
+    if (isNaN(bookingId) || bookingId < 1) {
+      return res.status(400).json({ error: 'booking_id không hợp lệ' })
+    }
+
+    // Lấy booking + room
     const booking = await Booking.findOne({
-      where: { booking_id, user_id },   // chỉ check id + user
+      where: { booking_id: bookingId, user_id },
       include: [{ model: Room }],
     })
 
     if (!booking) {
-      console.log('>>> createPaymentUrl: booking not found', { booking_id, user_id })
       return res
         .status(404)
         .json({ error: 'Không tìm thấy đơn đặt phòng thuộc về bạn' })
     }
 
-    // Optional: chặn trạng thái không hợp lệ
+    // Chặn trạng thái không hợp lệ
     if (booking.status === 'cancelled' || booking.status === 'completed') {
       return res
         .status(400)
         .json({ error: 'Đơn này không thể thanh toán nữa' })
+    }
+
+    // Kiểm tra đã thanh toán chưa
+    const existingPayment = await Payment.findOne({
+      where: {
+        booking_id: bookingId,
+        status: 'success',
+      },
+    })
+
+    if (existingPayment) {
+      return res
+        .status(400)
+        .json({ error: 'Đơn này đã được thanh toán rồi' })
     }
 
     // 2. Tính số đêm & tổng tiền
@@ -257,27 +278,47 @@ exports.vnpayIpn = async (req, res) => {
 // 4. Thanh toán trực tiếp tại khách sạn
 exports.directPayment = async (req, res) => {
   try {
-    const { booking_id } = req.body;
+    const { booking_id } = req.body
 
+    // Validate booking_id
     if (!booking_id) {
-      return res.status(400).json({ error: 'Thiếu booking_id' });
+      return res.status(400).json({ error: 'Thiếu booking_id' })
     }
 
-    // 1. Tìm booking của chính user đang login
+    const bookingId = Number(booking_id)
+    if (isNaN(bookingId) || bookingId < 1) {
+      return res.status(400).json({ error: 'booking_id không hợp lệ' })
+    }
+
+    // Tìm booking của chính user đang login
     const booking = await Booking.findOne({
-      where: { booking_id, user_id: req.user.id },
+      where: { booking_id: bookingId, user_id: req.user.id },
       include: [{ model: Room }],
-    });
+    })
 
     if (!booking) {
-      return res.status(404).json({ error: 'Không tìm thấy booking' });
+      return res.status(404).json({ error: 'Không tìm thấy booking' })
     }
 
     // Không cho thanh toán lại booking đã completed / cancelled
     if (booking.status === 'cancelled' || booking.status === 'completed') {
       return res
         .status(400)
-        .json({ error: 'Đơn này không thể thanh toán nữa' });
+        .json({ error: 'Đơn này không thể thanh toán nữa' })
+    }
+
+    // Kiểm tra đã thanh toán chưa
+    const existingPayment = await Payment.findOne({
+      where: {
+        booking_id: bookingId,
+        status: 'success',
+      },
+    })
+
+    if (existingPayment) {
+      return res
+        .status(400)
+        .json({ error: 'Đơn này đã được thanh toán rồi' })
     }
 
     // 2. Tính lại số đêm + tổng tiền

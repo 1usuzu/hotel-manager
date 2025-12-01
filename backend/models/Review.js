@@ -13,6 +13,11 @@ const Review = sequelize.define('Review', {
     references: {
       model: 'users',
       key: 'user_id',
+    },
+    validate: {
+      notNull: {
+        msg: 'user_id không được để trống'
+      }
     }
   },
   room_id: {
@@ -21,14 +26,39 @@ const Review = sequelize.define('Review', {
     references: {
       model: 'rooms',
       key: 'room_id',
+    },
+    validate: {
+      notNull: {
+        msg: 'room_id không được để trống'
+      }
     }
   },
   rating: {
-    type: DataTypes.INTEGER, // Thang 1-5
+    type: DataTypes.INTEGER,
     allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Đánh giá không được để trống'
+      },
+      min: {
+        args: [1],
+        msg: 'Đánh giá tối thiểu là 1 sao'
+      },
+      max: {
+        args: [5],
+        msg: 'Đánh giá tối đa là 5 sao'
+      }
+    }
   },
   comment: {
     type: DataTypes.TEXT,
+    allowNull: true,
+    validate: {
+      len: {
+        args: [0, 1000],
+        msg: 'Bình luận không được quá 1000 ký tự'
+      }
+    }
   },
   created_at: {
     type: DataTypes.DATE,
@@ -37,6 +67,17 @@ const Review = sequelize.define('Review', {
 }, {
   tableName: 'reviews',
   timestamps: false,
+  indexes: [
+    {
+      fields: ['user_id']
+    },
+    {
+      fields: ['room_id']
+    },
+    {
+      fields: ['rating']
+    }
+  ]
 });
 
 module.exports = Review;

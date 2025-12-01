@@ -32,34 +32,55 @@ function parseDateFromQuery(str) {
 
 exports.searchRooms = async (req, res) => {
   try {
-    // log để debug FE gửi gì lên
-    console.log('>>> searchRooms req.query =', req.query)
-
     let { type, minPrice, maxPrice, capacity, checkIn, checkOut } = req.query
+
+    // Trim inputs
+    type = type?.trim()
+    checkIn = checkIn?.trim()
+    checkOut = checkOut?.trim()
 
     const whereRoom = {}
 
+    // Validate and filter by type
     if (type) {
-      // nhớ: giá trị type phải khớp DB, ví dụ 'Standard', 'VIP', 'Family'
       whereRoom.type = type
     }
 
+    // Validate and filter by capacity
     if (capacity) {
-      whereRoom.capacity = { [Op.gte]: Number(capacity) }
+      const cap = Number(capacity)
+      if (isNaN(cap) || cap < 1) {
+        return res.status(400).json({ error: 'Sức chứa không hợp lệ' })
+      }
+      whereRoom.capacity = { [Op.gte]: cap }
     }
 
+    // Validate and filter by price
     if (minPrice) {
+      const min = Number(minPrice)
+      if (isNaN(min) || min < 0) {
+        return res.status(400).json({ error: 'Giá tối thiểu không hợp lệ' })
+      }
       whereRoom.price = {
         ...(whereRoom.price || {}),
-        [Op.gte]: Number(minPrice),
+        [Op.gte]: min,
       }
     }
 
     if (maxPrice) {
+      const max = Number(maxPrice)
+      if (isNaN(max) || max < 0) {
+        return res.status(400).json({ error: 'Giá tối đa không hợp lệ' })
+      }
       whereRoom.price = {
         ...(whereRoom.price || {}),
-        [Op.lte]: Number(maxPrice),
+        [Op.lte]: max,
       }
+    }
+
+    // Validate min <= max
+    if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+      return res.status(400).json({ error: 'Giá tối thiểu phải nhỏ hơn giá tối đa' })
     }
 
     // Lọc theo tình trạng: chỉ lấy phòng available
@@ -82,6 +103,15 @@ exports.searchRooms = async (req, res) => {
           .json({ error: 'Ngày trả phòng phải sau ngày nhận phòng' })
       }
 
+      // Không cho đặt phòng trong quá khứ
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      if (inDate < today) {
+        return res
+          .status(400)
+          .json({ error: 'Ngày check-in không thể ở trong quá khứ' })
+      }
+
       const booked = await Booking.findAll({
         where: {
           status: { [Op.ne]: 'cancelled' },
@@ -89,23 +119,19 @@ exports.searchRooms = async (req, res) => {
           check_out: { [Op.gt]: inDate },
         },
         attributes: ['room_id'],
-      });
+      })
 
-      const bookedRoomIds = [...new Set(booked.map((b) => b.room_id))];
+      const bookedRoomIds = [...new Set(booked.map((b) => b.room_id))]
 
       if (bookedRoomIds.length > 0) {
-        whereRoom.room_id = { [Op.notIn]: bookedRoomIds };
+        whereRoom.room_id = { [Op.notIn]: bookedRoomIds }
       }
     }
-
-    console.log('>>> searchRooms whereRoom =', whereRoom)
 
     const rooms = await Room.findAll({
       where: whereRoom,
       order: [['price', 'ASC']],
     })
-
-    console.log('>>> searchRooms rooms.length =', rooms.length)
 
     return res.json(rooms)
   } catch (err) {
@@ -175,7 +201,12 @@ exports.getRoomByNumber = async (req, res) => {
 // TODO: sau này có thể gọi AI service để xếp hạng theo lịch sử người dùng
 exports.getRecommendedRooms = async (req, res) => {
   try {
-    const limit = Number(req.query.limit) || 6
+    let limit = Number(req.query.limit) || 6
+
+    // Validate limit
+    if (isNaN(limit) || limit < 1 || limit > 100) {
+      limit = 6
+    }
 
     const whereRoom = {
       status: 'available',

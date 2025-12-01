@@ -3,25 +3,24 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
 const sequelize = require('./config/db')
-const path = require('path');
 
 dotenv.config()
 
 const app = express()
+
+// Middleware
 app.use(cors())
 app.use(express.json())
-app.use('/uploads', express.static(path.join(__dirname, '..', 'admin', 'backend', 'uploads')))
+app.use(express.urlencoded({ extended: true }))
 
-console.log('>>> index.js loaded')
-
-// Models & associations
+// Models
 const User = require('./models/User')
 const Room = require('./models/Room')
 const Booking = require('./models/Booking')
 const Review = require('./models/Review')
 const Payment = require('./models/Payment')
 
-// Associations
+// Database Associations
 User.hasMany(Booking, { foreignKey: 'user_id' })
 Booking.belongsTo(User, { foreignKey: 'user_id' })
 
@@ -40,36 +39,48 @@ Payment.belongsTo(User, { foreignKey: 'user_id' })
 Booking.hasOne(Payment, { foreignKey: 'booking_id' })
 Payment.belongsTo(Booking, { foreignKey: 'booking_id' })
 
-// Routes
-const authRoutes = require('./routes/authRoutes')
-const roomRoutes = require('./routes/roomRoutes')
-const bookingRoutes = require('./routes/bookingRoutes')
-const paymentRoutes = require('./routes/paymentRoutes')
+// API Routes
+app.use('/api/auth', require('./routes/authRoutes'))
+app.use('/api/rooms', require('./routes/roomRoutes'))
+app.use('/api/bookings', require('./routes/bookingRoutes'))
+app.use('/api/payment', require('./routes/paymentRoutes'))
 
-app.use('/api/auth', authRoutes)
-app.use('/api/rooms', roomRoutes)
-app.use('/api/bookings', bookingRoutes)
-app.use('/api/payment', paymentRoutes)
-
-// Test root
+// Health check
 app.get('/', (req, res) => {
-  res.send('Backend OK')
+  res.json({
+    status: 'OK',
+    message: 'Hotel Manager API',
+    timestamp: new Date().toISOString()
+  })
 })
 
-// Kết nối DB
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route không tồn tại' })
+})
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err)
+  res.status(500).json({ error: 'Lỗi server' })
+})
+
+// Database connection and server start
+const PORT = process.env.PORT || 4000
+
 sequelize
   .authenticate()
   .then(() => {
-    console.log('Kết nối Supabase PostgreSQL thành công')
+    console.log('✓ Kết nối database thành công')
     return sequelize.sync({ alter: true })
   })
   .then(() => {
-    console.log('Đã đồng bộ CSDL.')
+    console.log('✓ Đồng bộ database thành công')
+    app.listen(PORT, () => {
+      console.log(`✓ Server đang chạy tại http://localhost:${PORT}`)
+    })
   })
-  .catch((err) => console.error('Lỗi DB:', err))
-
-// Start server
-const PORT = process.env.PORT || 4000
-app.listen(PORT, () => {
-  console.log(`Server chạy tại http://localhost:${PORT}`)
-})
+  .catch((err) => {
+    console.error('✗ Lỗi khởi động server:', err)
+    process.exit(1)
+  })

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const roomController = require('../controllers/roomController');
 const {
   searchRooms,
   getRoomDetails,
@@ -8,10 +7,12 @@ const {
   getRecommendedRooms,
 } = require('../controllers/roomController')
 
+// Specific routes first (before /:id)
 router.get('/search', searchRooms)
-router.get('/number/:roomNumber', roomController.getRoomByNumber);
-router.get('/recommendations', getRecommendedRooms);
+router.get('/recommendations', getRecommendedRooms)
+router.get('/number/:roomNumber', getRoomByNumber)
+
+// Generic routes last
 router.get('/:id', getRoomDetails)
-router.get('/:id', roomController.getRoomById)
 
 module.exports = router
