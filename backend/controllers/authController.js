@@ -13,7 +13,7 @@ async function setUserPassword(user, plainPassword) {
   await user.save();
 }
 
-// ================= REGISTER ==================
+// Đăng ký
 exports.register = async (req, res) => {
   try {
     const { username, email, password, confirmPassword, phone } = req.body;
@@ -55,7 +55,7 @@ exports.register = async (req, res) => {
 };
 
 
-// ================= LOGIN ==================
+// Đăng nhập
 exports.login = async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
@@ -89,7 +89,7 @@ exports.login = async (req, res) => {
 };
 
 
-// ================= RESET / CHANGE PASSWORD ==================
+// Đổi mật khẩu
 exports.resetPassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -125,8 +125,60 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+// Quên mật khẩu — gửi token reset (nếu chưa cấu hình mail, trả về URL trong response)
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Vui lòng cung cấp email' });
 
-// ================= PROFILE ==================
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ error: 'Email không tồn tại' });
+
+    // Tạo token reset (JWT ngắn hạn)
+    const token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    const frontend = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetUrl = `${frontend}/reset-password?token=${token}`;
+
+    // TODO: Gửi email thực tế bằng mailer (nodemailer, external service). Hiện tại log và trả về URL để dev/test.
+    console.info(`Password reset URL for ${email}: ${resetUrl}`);
+
+    res.json({ message: 'Đã tạo token reset. Kiểm tra email (nếu mailer được cấu hình).', resetUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server khi xử lý quên mật khẩu' });
+  }
+};
+
+// Reset mật khẩu bằng token
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password, confirmPassword } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token reset bắt buộc' });
+    if (!password) return res.status(400).json({ error: 'Vui lòng cung cấp mật khẩu mới' });
+    if (password !== confirmPassword) return res.status(400).json({ error: 'Mật khẩu xác nhận không khớp' });
+
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      return res.status(400).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
+    }
+
+    const user = await User.findOne({ where: { user_id: payload.id } });
+    if (!user) return res.status(404).json({ error: 'Người dùng không tồn tại' });
+
+    const hashed = await bcrypt.hash(password, 10);
+    await user.update({ password: hashed });
+
+    res.json({ message: 'Đổi mật khẩu thành công' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server khi reset mật khẩu' });
+  }
+};
+
+// Lấy profile
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
@@ -143,7 +195,7 @@ exports.getProfile = async (req, res) => {
 };
 
 
-// ================= UPDATE PROFILE ==================
+// Cập nhật profile
 exports.updateProfile = async (req, res) => {
   try {
     const { username, email, phone } = req.body;

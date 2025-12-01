@@ -1,42 +1,43 @@
-// src/pages/LoginPage.jsx
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth/AuthProvider'
+import { forgotPassword } from '@/api/authApi'
 import '@/styles/auth.css'
 
-export default function LoginPage() {
-  const { login, loading } = useAuth()
+export default function ForgotPasswordPage() {
   const navigate = useNavigate()
-
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
-
-  const valid = email.includes('@') && password.length >= 6
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!valid) {
-      setError('Email phải chứa @ và mật khẩu >= 6 ký tự')
+    if (!email.includes('@')) {
+      setError('Email không hợp lệ')
       return
     }
 
     try {
+      setLoading(true)
       setError('')
-      await login(email, password, rememberMe) // vẫn giữ kiểu cũ
-      navigate('/')
+      const res = await forgotPassword(email)
+      // Backend trả về resetUrl có chứa token, ta lấy token từ đó hoặc nếu backend trả về token trực tiếp thì dùng luôn.
+      // Hiện tại backend trả về: { message, resetUrl }
+      // resetUrl dạng: http://localhost:3000/reset-password?token=...
+      // Ta cần parse token từ resetUrl để truyền sang trang OTP (demo flow)
+
+      const url = new URL(res.resetUrl)
+      const token = url.searchParams.get('token')
+
+      navigate('/otp', { state: { email, token } })
     } catch (err) {
       console.error(err)
-      const msg =
-        err?.response?.data?.error ||
-        'Đăng nhập thất bại, vui lòng thử lại'
-      setError(msg)
+      setError(err?.response?.data?.error || 'Có lỗi xảy ra, vui lòng thử lại')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-
     <div
       className="auth-container"
       style={{ backgroundImage: `url('/images/bg-login.jpg')` }}
@@ -60,9 +61,13 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-
-          <h1 className="auth-title">Đăng nhập</h1>
+          <h1 className="auth-title">Quên mật khẩu</h1>
         </div>
+
+        <p className="text-gray-500 text-center mb-6 text-sm">
+          Nhập email của bạn để nhận hướng dẫn đặt lại mật khẩu.
+        </p>
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="auth-field">
             <label>Email</label>
@@ -75,50 +80,21 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="auth-field">
-            <label>Mật khẩu</label>
-            <input
-              type="password"
-              className="auth-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
-              Quên mật khẩu?
-            </Link>
-          </div>
-
-          <div className="auth-remember">
-            <input
-              id="rememberMe"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
-          </div>
-
           {error && <div className="auth-error">{error}</div>}
 
           <button
             type="submit"
-            disabled={!valid || loading}
-            className={`auth-submit ${
-              !valid || loading ? 'auth-submit-disabled' : ''
-            }`}
+            disabled={loading}
+            className={`auth-submit ${loading ? 'auth-submit-disabled' : ''}`}
           >
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            {loading ? 'Đang xử lý...' : 'Tiếp tục'}
           </button>
         </form>
 
         <div className="auth-subtext">
-          Chưa có tài khoản?{' '}
-          <Link to="/register" className="auth-link">
-            Đăng ký ngay
+          Quay lại{' '}
+          <Link to="/login" className="auth-link">
+            Đăng nhập
           </Link>
         </div>
       </div>

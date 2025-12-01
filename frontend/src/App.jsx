@@ -18,6 +18,9 @@ import AboutPage from '@/pages/AboutPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import BookingResultPage from '@/pages/BookingResultPage'
 import UserPage from '@/pages/UserPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
+import OtpPage from '@/pages/OtpPage'
+import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import ChatWidget from '@/features/chat/ChatWidget'
 
 import ScrollToTop from '@/components/ScrollToTop'
@@ -32,6 +35,9 @@ function AppRoutes() {
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/otp" element={<OtpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         <Route path="/about" element={<AboutPage />} />
         <Route path="/search" element={<SearchPage />} />

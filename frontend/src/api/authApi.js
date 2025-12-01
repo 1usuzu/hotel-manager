@@ -18,3 +18,15 @@ export async function changePassword(payload) {
   const res = await api.put('/auth/reset-password', payload)
   return res.data
 }
+
+// Quên mật khẩu
+export async function forgotPassword(email) {
+  const res = await api.post('/auth/forgot-password', { email })
+  return res.data
+}
+
+// Reset mật khẩu với token
+export async function resetPassword(payload) {
+  const res = await api.post('/auth/reset-password', payload)
+  return res.data
+}
